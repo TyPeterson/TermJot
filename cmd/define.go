@@ -14,7 +14,6 @@ var defineCmd = &cobra.Command{
     Args: cobra.MinimumNArgs(1),
     Run: func(cmd *cobra.Command, args []string) {
         term := args[0]
-        // category := cmd.Flag("category").Value.String()
 
         fmt.Printf("Term: %s\nDefinition: %s\n", term, definition)
 

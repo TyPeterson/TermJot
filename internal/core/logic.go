@@ -91,8 +91,8 @@ func AddDefinition(name, definition, categoryName string) error {
     for i, term := range terms {
         if term.Name == name && (category == nil || term.Category == category.Name) {
             terms[i].Definition = definition
-            fmt.Printf("Added definition to term '%s'\n", name)
             // term attributes:
+            fmt.Printf("Added definition to term '%s'\n", name)
             fmt.Printf("\n>  %s\n\n", term.Name)
             fmt.Printf("Definition: %s\n", term.Definition)
             fmt.Printf("Category: %s\n", term.Category)
