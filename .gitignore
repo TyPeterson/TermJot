@@ -1,4 +1,5 @@
 cmd/testing.go
+*.exe
 .env
 design.md
 screenshot.png

@@ -8,7 +8,7 @@ import (
 )
 
 var addCmd = &cobra.Command{
-	Use:   "add [-c category] term",
+	Use:   "add [-c category][-d definition] term",
 	Short: "Add a new term to the global list or to a specified category",
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -22,7 +22,7 @@ var addCmd = &cobra.Command{
 		// remove double quotes
 		// term = term[1 : len(term)-1]
 
-		core.AddTerm(term, category)
+		core.AddTerm(term, definition, category)
 
 		if category != "" {
 			fmt.Printf("Added term '%s' - [%s]\n", term, category)

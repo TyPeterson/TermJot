@@ -14,14 +14,17 @@ var defineCmd = &cobra.Command{
     Args: cobra.MinimumNArgs(1),
     Run: func(cmd *cobra.Command, args []string) {
         term := args[0]
-        definition := args[1]
         // category := cmd.Flag("category").Value.String()
 
         fmt.Printf("Term: %s\nDefinition: %s\n", term, definition)
 
         core.AddDefinition(term, definition, category)
 
-
+        if category != "" {
+            fmt.Printf("Category: %s\n", category)
+        } else {
+            fmt.Println("No category specified")
+        }
 
     },
 

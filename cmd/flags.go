@@ -2,6 +2,7 @@ package cmd
 
 var (
 	category   string
+    definition string
 	done       bool
 	all        bool
 	categories bool
@@ -10,8 +11,8 @@ var (
 )
 
 func InitFlags() {
+    addCmd.Flags().StringVarP(&definition, "definition", "d", "", "Provide a definition for the term")
 	addCmd.Flags().StringVarP(&category, "category", "c", "", "Specify a category to add the term to")
-    // TODO: Add flag for '-d' or '--define'
 
 	removeCmd.Flags().StringVarP(&category, "category", "c", "", "Specify a category to remove the term from")
 
@@ -28,6 +29,6 @@ func InitFlags() {
 
     // add define flags (-c)
     defineCmd.Flags().StringVarP(&category, "category", "c", "", "Specify a category to define the term in")
-    defineCmd.Flags().StringVarP(&category, "define", "d", "", "Provide a definition for the term")
+    defineCmd.Flags().StringVarP(&definition, "definition", "d", "", "Provide a definition for the term")
 
 }

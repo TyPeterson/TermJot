@@ -81,20 +81,25 @@ func AddTerm(name, definition, categoryName string) error {
 
 
 // ------------- AddDefinition -------------
-func AddDefinition(name, definition, categoryName string) {
+func AddDefinition(name, definition, categoryName string) error {
     var category *models.Category
     if categoryName != "" {
         category = FindOrCreateCategory(categoryName)
     }
 
-	term := models.Term{
-		ID:       nextTermID,
-		Name:     name,
-        Definition: definition,
-		Active:   true,
-		Category: categoryName,
-	}
-
+    // get term by name
+    for i, term := range terms {
+        if term.Name == name && (category == nil || term.Category == category.Name) {
+            terms[i].Definition = definition
+            fmt.Printf("Added definition to term '%s'\n", name)
+            // term attributes:
+            fmt.Printf("\n>  %s\n\n", term.Name)
+            fmt.Printf("Definition: %s\n", term.Definition)
+            fmt.Printf("Category: %s\n", term.Category)
+            fmt.Printf("Active: %t\n", term.Active)
+        }
+    }
+    return Save()
 }
 
 
@@ -161,10 +166,11 @@ func ListTerms(categoryName string, showDone bool, showAll bool) {
 	for _, term := range terms {
 		if (category == nil || term.Category == category.Name) && (showAll || term.Active == !showDone) {
 			if term.Category != "" {
-				fmt.Printf("\n>  %s - [%s]\n\n", term.Name, term.Category)
+                    fmt.Printf("\n>  %s - [%s]\n\n", term.Name, term.Category)
 			} else {
 				fmt.Printf("\n>  %s\n\n", term.Name)
 			}
+            fmt.Println("Definition:", term.Definition)
 		}
 	}
 }
