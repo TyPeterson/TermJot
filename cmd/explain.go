@@ -142,8 +142,8 @@ var explainCmd = &cobra.Command{
         r1 := core.FormatMarkdown(<-definitionResult)
         r2 := core.FormatMarkdown(<-exampleResult)
 
-        definitionHeader := api.GenerateHeader("Description")
-        exampleHeader := api.GenerateHeader("Example")
+        definitionHeader := core.GenerateHeader("Description")
+        exampleHeader := core.GenerateHeader("Example")
 
         fmt.Println("\n" + definitionHeader + "\n")
         printWithMargins(r1, 20)

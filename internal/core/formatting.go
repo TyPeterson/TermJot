@@ -75,3 +75,28 @@ func ColorBlockTokens(text, lang string) string {
 
     // return  LineBreak(' ') + NL + finalColoredBlock  + NL
 }
+
+
+// ----------------- generateHeader() -----------------
+func GenerateHeader(headerText string) string {
+    	width, _, err := term.GetSize(0)
+	if err != nil {
+		fmt.Println("Error getting terminal size:", err)
+		return ""
+	}
+
+	// box width is len(headerText) + 2*headerPadding
+	headerPadding := 10
+	boxWidth := len(headerText) + (2 * headerPadding)
+
+	leftPadding := (width - (boxWidth + 2)) / 2
+
+	topBorder := strings.Repeat(" ", leftPadding) + "┌" + strings.Repeat("─", boxWidth) + "┐"
+	centerText := strings.Repeat(" ", leftPadding) + "│" + strings.Repeat(" ", headerPadding) + headerText + strings.Repeat(" ", headerPadding) + "│"
+	botBorder := strings.Repeat(" ", leftPadding) + "└" + strings.Repeat("─", boxWidth) + "┘"
+
+	finalHeader := "\n" + topBorder + "\n" + centerText + "\n" + botBorder + "\n"
+
+    return finalHeader
+}
+

@@ -2,7 +2,7 @@ package core
 
 import (
 	"fmt"
-	// "strings"
+	"strings"
 	"github.com/TyPeterson/TermJot/models"
     "github.com/spf13/cobra"
     tm "github.com/buger/goterm"
@@ -53,11 +53,16 @@ func Save() error {
 
 // ------------- AddTerm -------------
 func AddTerm(name, definition, categoryName string) error {
-	var category *models.Category
-	if categoryName != "" {
-		category = FindOrCreateCategory(categoryName)
+    var category *models.Category
+    if categoryName != "" {
+        category = FindCategory(categoryName)
 	}
-	term := models.Term{
+    if category == nil {
+        category = CreateCategory(categoryName)
+    }
+
+
+	term := models.Term {
 		ID:       nextTermID,
 		Name:     name,
 		Definition: definition,
@@ -122,14 +127,18 @@ func HandleDefine(termName, categoryName string) {
 	definition := promptForInput("Definition: ")
 	AddDefinition(termName, definition, categoryName)
 	fmt.Printf("Added definition to term '%s'\n", termName)
+    fmt.Printf("to prove it, the new term info is:\nterm: %s\ndefinition: %s\ncategory: %s\n", termName, definition, categoryName)
 }
 
 // ------------- AddDefinition -------------
 func AddDefinition(name, definition, categoryName string) error {
-	var category *models.Category
-	if categoryName != "" {
-		category = FindOrCreateCategory(categoryName)
+    var category *models.Category
+    if categoryName != "" {
+        category = FindCategory(categoryName)
 	}
+    if category == nil {
+        category = CreateCategory(categoryName)
+    }
 
 	for i, term := range terms {
 		if term.Name == name && (category == nil || term.Category == category.Name) {
@@ -148,7 +157,7 @@ func AddDefinition(name, definition, categoryName string) error {
 func RemoveTerm(name string, categoryName string) error {
 	var category *models.Category
 	if categoryName != "" {
-		category = FindCategoryByName(categoryName)
+		category = FindCategory(categoryName)
 		if category == nil {
 			fmt.Printf("Category '%s' not found\n", categoryName)
 			return nil
@@ -177,7 +186,7 @@ func RemoveTerm(name string, categoryName string) error {
 func MarkTermAsDone(name string, categoryName string) error {
 	var category *models.Category
 	if categoryName != "" {
-		category = FindCategoryByName(categoryName)
+		category = FindCategory(categoryName)
 		if category == nil {
 			fmt.Printf("Category '%s' not found\n", categoryName)
 			return nil
@@ -196,40 +205,83 @@ func MarkTermAsDone(name string, categoryName string) error {
 
 // ------------- ListTerms -------------
 func ListTerms(categoryName string, showDone bool, showAll bool) {
-	var category *models.Category
-	if categoryName != "" {
-		category = FindCategoryByName(categoryName)
-		if category == nil {
-			fmt.Printf("Category '%s' not found\n", categoryName)
-			return
-		}
-	}
-	for _, term := range terms {
-		if (category == nil || term.Category == category.Name) && (showAll || term.Active == !showDone) {
-			if term.Category != "" {
-				fmt.Printf("\n>  %s - [%s]\n\n", term.Name, term.Category)
-			} else {
-				fmt.Printf("\n>  %s\n\n", term.Name)
-			}
-			fmt.Println("Definition:", term.Definition)
-		}
-	}
+    // if categoryName is provided, only list terms in that category
+    if categoryName != "" {
+        category := FindCategory(categoryName)
+
+        if category == nil {
+            fmt.Printf("Category '%s' not found\n", categoryName)
+            return
+        }
+
+        categoryHeader := TextColor(category.Name, 111)
+        fmt.Printf("\n  [%s]\n\n", categoryHeader)
+
+        for _, term := range terms {
+            if strings.ToLower(term.Category) == strings.ToLower(categoryName) {
+                if showAll || term.Active || showDone {
+                    fmt.Printf("  *   \x1b[1m%s:\x1b[0m\n", term.Name)
+                    if term.Definition != "" {
+                        fmt.Printf("\t\x1b[3m%s\x1b[0m\n\n", term.Definition)
+                    } else {
+                        fmt.Printf("\t\x1b[2m\x1b[3m%s\x1b[0m\n\n", "NA")
+                    }
+                }
+            }
+        }
+        fmt.Println()
+        return
+    }
+
+    // if no category is specified, list all terms
+    numCategories := len(categories)
+
+    // first do terms without categories
+    for _, term := range terms {
+        if term.Category == "" {
+            termDefToDisplay := term.Definition
+
+            if termDefToDisplay == "" {
+                 termDefToDisplay = "..."
+            }
+
+            lineToDisplay := tm.Color(fmt.Sprintf("   [    ]\t\t\x1b[3m%s:\x1b[0m \x1b[2m\x1b[3m%s\x1b[0m",  term.Name, termDefToDisplay), tm.WHITE)
+            fmt.Println(lineToDisplay)
+        }
+    }
+
+    // now check if we have categorized terms, and if so, display them with colored category names
+    if numCategories != 0 {
+        for idx, category := range categories {
+            for _, term := range category.Terms {
+                termDefToDisplay := term.Definition
+
+                if termDefToDisplay == "" {
+                    termDefToDisplay = "..."
+                }
+
+                color := 256 / numCategories * (idx + 1)
+                formattedCategoryName := fmt.Sprintf("\033[38;5;%dm%s", color, category.Name)
+                fmt.Printf("\033[38;5;15m   [%s\033[38;5;15m]\033[0m\t\t\x1b[3m%s:\x1b[0m \x1b[2m\x1b[3m%s\x1b[0m\n", formattedCategoryName, term.Name, termDefToDisplay)
+            }
+        }
+    }
+
 }
+
 
 // ------------- ListCategories -------------
 func ListCategories() {
-	for _, category := range categories {
-		fmt.Println(category.Name)
+    numCategories := len(categories)
+	for idx, category := range categories {
+        color := 256 / (numCategories+1) * (idx + 1)
+        formattedCategoryName := fmt.Sprintf("\033[38;5;%dm%s", color, category.Name)
+        fmt.Printf("\033[38;5;15m   [%s\033[38;5;15m]\033[0m\n", formattedCategoryName)
 	}
 }
 
-// ------------- FindOrCreateCategory -------------
-func FindOrCreateCategory(name string) *models.Category {
-	for i, category := range categories {
-		if category.Name == name {
-			return &categories[i]
-		}
-	}
+// ------------- CreateCategory -------------
+func CreateCategory(name string) *models.Category {
 	newCategory := models.Category{
 		ID:   nextCategoryID,
 		Name: name,
@@ -239,10 +291,10 @@ func FindOrCreateCategory(name string) *models.Category {
 	return &categories[len(categories)-1]
 }
 
-// ------------- FindCategoryByName -------------
-func FindCategoryByName(name string) *models.Category {
+// ------------- FindCategory -------------
+func FindCategory(name string) *models.Category {
 	for i, category := range categories {
-		if category.Name == name {
+		if strings.ToLower(category.Name) == strings.ToLower(name) {
 			return &categories[i]
 		}
 	}
@@ -251,7 +303,6 @@ func FindCategoryByName(name string) *models.Category {
 
 // ------------- Help -------------
 func Help(command *cobra.Command) {
-    fmt.Println(tm.Background(tm.Color("IMPORTANT", tm.RED), tm.WHITE))
 	fmt.Printf("Usage: %s\n", command.Use)
 	fmt.Printf("Description: %s\n", command.Short)
 }

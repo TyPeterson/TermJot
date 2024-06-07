@@ -10,7 +10,7 @@ import (
     "github.com/nexidian/gocliselect"
 	// "github.com/alecthomas/chroma/lexers"
 	"github.com/TyPeterson/TermJot/models"
-    tm "github.com/buger/goterm"
+    // tm "github.com/buger/goterm"
     "golang.org/x/term"
 )
 
@@ -34,7 +34,7 @@ func promptForConfirmation(label string) bool {
 func fetchTerms(category string) []models.Term {
 	if category != "" {
 		for _, cat := range categories {
-			if cat.Name == category {
+			if strings.ToLower(cat.Name) == strings.ToLower(category) {
 				return cat.Terms
 			}
 		}
@@ -43,7 +43,11 @@ func fetchTerms(category string) []models.Term {
 	return terms
 }
 
-// ------------- sortByCategory -------------
+
+/*
+    ------------- sortByCategory -------------
+    - Takes a slice of terms and returns a map of terms sorted by category
+*/
 func sortByCategory(terms []models.Term) map[string][]models.Term {
     termMap := make(map[string][]models.Term)
     for _, term := range terms {
@@ -56,48 +60,18 @@ func sortByCategory(terms []models.Term) map[string][]models.Term {
 // ------------- selectTerm -------------
 func selectTerm() (string, string) {
     menu := gocliselect.NewMenu("Select a term")
-    numCategories := len(categories)
-    if numCategories == 0 {
-        fmt.Println("No categories found")
-        return "", ""
-    }
-
-    // adding all terms without a category
-    for _, term := range terms {
-        if term.Category == "" {
-            menu.AddItem(tm.Color(fmt.Sprintf("[    ]\t\t%s",  term.Name), tm.WHITE), fmt.Sprintf("%s-%s", term.Name, term.Category))
+    // need to show all terms (uncategorized and categorized)
+    termMap := sortByCategory(terms)
+    for category, terms := range termMap {
+        for _, term := range terms {
+            menu.AddItem(fmt.Sprintf("[%s]\t\t%s: %s", TextColor(category, 1), term.Name, term.Definition), fmt.Sprintf("%s-%s", term.Name, term.Category))
         }
     }
-
-
-    for idx, category := range categories {
-        for _, term := range category.Terms {
-            color := 256 / numCategories * (idx + 1)
-            formattedCategoryName := fmt.Sprintf("\033[38;5;%dm%s", color, category.Name)
-            menu.AddItem(fmt.Sprintf("\033[38;5;15m[%s\033[38;5;15m]\033[0m\t\t%s", formattedCategoryName, term.Name), fmt.Sprintf("%s-%s", term.Name, term.Category))
-        }
-    }
-
-    // -------- goterm print test --------
-    // tm.Println(tm.Background(tm.Color(tm.Bold("Important header"), tm.RED), tm.WHITE))
-
-    choice := menu.Display()
-    splitChoice := strings.Split(choice, "-")
-
-    return splitChoice[0], splitChoice[1]
+    selectedTerm := menu.Display()
+    splitSelectedTerm := strings.Split(selectedTerm, "-")
+    return splitSelectedTerm[0], splitSelectedTerm[1]
 }
 
-// ------------- readKey -------------
-func readKey() string {
-	buf := make([]byte, 3)
-	os.Stdin.Read(buf)
-	return string(buf)
-}
-
-// ------------- clearScreen -------------
-func clearScreen() {
-	fmt.Print("\033[H\033[2J")
-}
 
 // ------------- filterTermsByName -------------
 func filterTermsByName(terms []models.Term, name string) []models.Term {

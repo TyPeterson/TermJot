@@ -2,10 +2,10 @@ package core
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	// "io/ioutil"
 	"os"
 	"path/filepath"
-
+    // "fmt"
 	"github.com/TyPeterson/TermJot/models"
 )
 
@@ -31,7 +31,7 @@ func (s *Storage) LoadData() ([]models.Term, []models.Category, error) {
 		return []models.Term{}, []models.Category{}, nil
 	}
 
-	data, err := ioutil.ReadFile(s.FilePath)
+	data, err := os.ReadFile(s.FilePath)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -44,7 +44,7 @@ func (s *Storage) LoadData() ([]models.Term, []models.Category, error) {
 	}{&terms, &categories}); err != nil {
 		return nil, nil, err
 	}
-
+    // fmt.Printf("LoadData() finished ...\nLoaded Terms:\n%v\n", terms)
 	return terms, categories, nil
 }
 
@@ -58,5 +58,5 @@ func (s *Storage) SaveData(terms []models.Term, categories []models.Category) er
 		return err
 	}
 
-	return ioutil.WriteFile(s.FilePath, data, 0644)
+	return os.WriteFile(s.FilePath, data, 0644)
 }
