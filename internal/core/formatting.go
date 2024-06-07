@@ -2,15 +2,25 @@ package core
 
 
 import (
-    "fmt"
-    "strings"
+"fmt"
+"strings"
 
-    "golang.org/x/term"
-    "github.com/TyPeterson/TermJot/models"
-    "github.com/alecthomas/chroma/lexers"
+"golang.org/x/term"
+"github.com/TyPeterson/TermJot/models"
+"github.com/alecthomas/chroma/lexers"
 )
 
 const NL = "\n"
+var  WIDTH int = setWidth()
+
+func setWidth() int {
+    width, _, err := term.GetSize(0)
+    if err != nil {
+        return 80
+    }
+    return width
+}
+
 
 // ------------- TextColor -------------
 func TextColor(text string, color int) string {
@@ -98,5 +108,73 @@ func GenerateHeader(headerText string) string {
 	finalHeader := "\n" + topBorder + "\n" + centerText + "\n" + botBorder + "\n"
 
     return finalHeader
+}
+
+
+
+// ------------- formatMarkdown -------------
+func FormatMarkdown(text string) string {
+	text = extractCodeBlocks(text)
+	text = formatBold(text)
+	text = formatItalic(text)
+	text = formatUnderline(text)
+	text = formatInlineCode(text)
+	text = replaceTabs(text, 2)
+	return text
+}
+
+// ------------- formatBold -------------
+func formatBold(text string) string {
+	re := regexp.MustCompile(`\*\*(.*?)\*\*`)
+	return re.ReplaceAllString(text, "\033[1m$1\033[0m")
+}
+
+// ------------- formatUnderline -------------
+func formatUnderline(text string) string {
+	re := regexp.MustCompile(`__(.*?)__`)
+	return re.ReplaceAllString(text, "\033[4m$1\033[0m")
+}
+
+// ------------- formatItalic -------------
+func formatItalic(text string) string {
+	re := regexp.MustCompile(`\*(.*?)\*`)
+	return re.ReplaceAllString(text, "\033[3m$1\033[0m")
+}
+
+// ------------- formatInlineCode -------------
+func formatInlineCode(text string) string {
+	re := regexp.MustCompile("`([^`]*)`")
+	return re.ReplaceAllString(text, "\033[22m$1\033[22m")
+}
+
+// ------------- formatFaint -------------
+func formatFaint(text string) string {
+    return fmt.Sprintf("\033[2m%s\033[0m", text)
+}
+
+// ------------- formatWithMargins -------------
+func formatWithMargins(text string, margin int) {
+	width, _, err := term.GetSize(0)
+	if err != nil {
+		panic(err)
+	}
+
+    text = strings.TrimLeft(text, "\n")
+	leftMargin := strings.Repeat(" ", margin)
+
+	currentLineCount := 0
+	// count word by word, and if currentLineCount + word.length > (width - margin), then print newline
+	words := strings.Split(text, " ")
+	fmt.Printf(leftMargin)
+
+	for _, word := range words {
+		if currentLineCount + len(word) > (width - (margin*2)) {
+			fmt.Printf("%s%s", NL, leftMargin)
+			currentLineCount = 0
+		}
+		fmt.Print(word + " ")
+		currentLineCount += len(word) + 1
+	}
+
 }
 

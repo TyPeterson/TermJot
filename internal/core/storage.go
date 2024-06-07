@@ -2,10 +2,8 @@ package core
 
 import (
 	"encoding/json"
-	// "io/ioutil"
 	"os"
 	"path/filepath"
-    // "fmt"
 	"github.com/TyPeterson/TermJot/models"
 )
 
@@ -14,6 +12,23 @@ const dataFileName = "termjot_data.json"
 type Storage struct {
 	FilePath string
 }
+
+
+// ------------- Init() -------------
+func Init()  {
+	storage, err := NewStorage()
+	if err != nil {
+		return
+	}
+	loadedTerms := storage.LoadData()
+	if err != nil {
+		return
+	}
+
+	terms = loadedTerms
+
+}
+
 
 // ------------- NewStorage() -------------
 func NewStorage() (*Storage, error) {
@@ -25,35 +40,42 @@ func NewStorage() (*Storage, error) {
 	return &Storage{FilePath: filePath}, nil
 }
 
+// ------------- Save -------------
+func Save() error {
+    storage, err := NewStorage()
+    if err != nil {
+        return err
+    }
+    return storage.SaveData(terms)
+}
+
+
 // ------------- LoadData() -------------
-func (s *Storage) LoadData() ([]models.Term, []models.Category, error) {
+func (s *Storage) LoadData() []models.Term {
 	if _, err := os.Stat(s.FilePath); os.IsNotExist(err) {
-		return []models.Term{}, []models.Category{}, nil
+		return []models.Term{}
 	}
 
 	data, err := os.ReadFile(s.FilePath)
 	if err != nil {
-		return nil, nil, err
+		return nil
 	}
 
 	var terms []models.Term
-	var categories []models.Category
 	if err := json.Unmarshal(data, &struct {
 		Terms      *[]models.Term     `json:"terms"`
-		Categories *[]models.Category `json:"categories"`
-	}{&terms, &categories}); err != nil {
-		return nil, nil, err
+	}{&terms}); err != nil {
+		return nil
 	}
-    // fmt.Printf("LoadData() finished ...\nLoaded Terms:\n%v\n", terms)
-	return terms, categories, nil
+
+	return terms
 }
 
 // ------------- SaveData() -------------
-func (s *Storage) SaveData(terms []models.Term, categories []models.Category) error {
+func (s *Storage) SaveData(terms []models.Term) error {
 	data, err := json.MarshalIndent(struct {
 		Terms      []models.Term     `json:"terms"`
-		Categories []models.Category `json:"categories"`
-	}{terms, categories}, "", "  ")
+	}{terms}, "", "  ")
 	if err != nil {
 		return err
 	}
