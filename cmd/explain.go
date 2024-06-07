@@ -40,35 +40,29 @@ func displayTextWithSprite(text string) {
 	lines := strings.Split(text, "\n")
 
 	sprite := "⚪"
-	// sprite := []string{"⚪", "⚫"}
-	// sprite := []string{".", "o", "O", "o", "."}
-	// spriteIndex := 0
 
-	// Hide the cursor
+	// hide cursor
 	fmt.Print("\033[?25l")
 
-	defer fmt.Print("\033[?25h") // Ensure the cursor is shown again after the function returns
+	defer fmt.Print("\033[?25h") // show cursor after function returns
 
 	for _, line := range lines {
 		words := strings.Split(line, " ")
 		for i, word := range words {
 
 			fmt.Print(sprite)
-			// fmt.Print(sprite[spriteIndex])
 
 			if word != "" {
 				time.Sleep(20 * time.Millisecond) // (longer wait makes sprite less 'blink-y')
 			}
 			// move back and clear the sprite
 			if i == len(words)-1 {
-				// Clear sprite and print the last word without trailing space
 				fmt.Print("\033[D \033[D")
 				fmt.Print(word)
 			} else {
 				fmt.Print("\033[D\033[D")
 				fmt.Print(word + " ")
 			}
-			// spriteIndex = (spriteIndex + 1) % len(sprite)
 		}
 		fmt.Printf("\n")
 	}
@@ -81,7 +75,7 @@ var explainCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		term := args[0]
 
-		api.InitializeGeminiClient() // Just call the function, no assignment
+		api.InitializeGeminiClient()
 
         done := make(chan bool)
         var wg sync.WaitGroup
@@ -125,14 +119,6 @@ var explainCmd = &cobra.Command{
         fmt.Println("\n" + exampleHeader + "\n")
         displayTextWithSprite(r2)
 
-        // exampleHeader := api.GenerateHeader("Example")
-        // exampleResult := api.GenerateExample(term, category)
-        // r1 := core.FormatMarkdown(exampleResult)
-        // fmt.Println("\n" + exampleHeader + "\n")
-        // displayTextWithSprite(r1)
-
-        // fmt.Printf("\n%s\n%s\n", definitionHeader, r1)
-        // fmt.Printf("\n%s\n%s\n", exampleHeader, r2)
 
 		defer time.Sleep(500 * time.Millisecond) // sleep a little before exiting
 	},
