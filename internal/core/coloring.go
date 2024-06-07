@@ -55,28 +55,24 @@ func ColorBlockTokens(text, lang string) string {
 		return ""
 	}
 
-	lineLens := []int{}
-	numTokenInLine := []int{}
-
-	curNumTokens := 0
-	curLineLen := 0
 
 	for _, token := range it.Tokens() {
 
 		color := models.TokenColors[token.Type]
 		coloredToken := TextColor(token.Value, models.ColorsMap[color])
-		curLineLen += len(token.Value)
-		curNumTokens++
 
-		if token.Value == NL {
-			lineLens = append(lineLens, curLineLen-1)
-			numTokenInLine = append(numTokenInLine, curNumTokens)
-
-			curLineLen = 0
-			curNumTokens = 0
-		}
 		finalColoredBlock += coloredToken
 	}
 
-	return finalColoredBlock
+    fmt.Println("made it here")
+    fmt.Println(BackgroundColor(LineBreak(' '), 232))
+    // realFinalColoredBlock :=
+//       " " +
+//       NL +
+        // LineBreak(' ')  +
+        // finalColoredBlock
+
+   return BackgroundColor(finalColoredBlock, 232) + NL + LineBreak(' ')
+
+    // return  LineBreak(' ') + NL + finalColoredBlock  + NL
 }

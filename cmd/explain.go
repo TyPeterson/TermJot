@@ -10,6 +10,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+
+
 func displayTextWithSprite(text string) {
 	fmt.Println("")
 	lines := strings.Split(text, "\n")
@@ -26,20 +28,7 @@ func displayTextWithSprite(text string) {
 
 	for _, line := range lines {
 		words := strings.Split(line, " ")
-		for _, word := range words {
-
-			// if word == "\t" {
-			// 	fmt.Print("T")
-			// }
-			// if word == "" {
-			// 	fmt.Print("-")
-			// }
-			// if word == "\n" {
-			// 	fmt.Print("N")
-			// }
-			// if word == " " {
-			// 	fmt.Print("S")
-			// }
+		for i, word := range words {
 
 			fmt.Print(sprite)
 			// fmt.Print(sprite[spriteIndex])
@@ -48,13 +37,17 @@ func displayTextWithSprite(text string) {
 				time.Sleep(20 * time.Millisecond) // (longer wait makes sprite less 'blink-y')
 			}
 			// move back and clear the sprite
-			fmt.Print("\033[D \033[D")
-
-			// fmt.Print(word + " ")
-			fmt.Print(word)
+			if i == len(words)-1 {
+				// Clear sprite and print the last word without trailing space
+				fmt.Print("\033[D \033[D")
+				fmt.Print(word)
+			} else {
+				fmt.Print("\033[D\033[D")
+				fmt.Print(word + " ")
+			}
 			// spriteIndex = (spriteIndex + 1) % len(sprite)
 		}
-		fmt.Printf("\n  ")
+		fmt.Printf("\n")
 	}
 }
 

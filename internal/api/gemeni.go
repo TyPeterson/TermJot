@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"os"
+	// "os"
 	// "github.com/TyPeterson/TermJot/internal/core"
 	// "github.com/TyPeterson/TermJot/internal/core"
 	"github.com/TyPeterson/TermJot/models"
@@ -28,7 +28,8 @@ func InitializeGeminiClient() {
 	// 	log.Fatalf("Error loading .env file: %v", err)
 	// }
 
-	apiKey := os.Getenv("GEMINI_API_KEY")
+    apiKey := "AIzaSyCrFqdIPZnSsvJJvsL7vcUe7weTFehnGLQ"
+	// apiKey := os.Getenv("GEMINI_API_KEY")
 	if apiKey == "" {
 		log.Fatalf("API key not found in environment variables")
 	}
@@ -224,7 +225,7 @@ func generateContent(term, category, contentType string) (string, error) {
 	done <- true
 
 	if errorOccured {
-		return "", fmt.Errorf("error generating content")
+        return "", fmt.Errorf("error generating content: %s", finalResult)
 	}
 
 	return finalResult, nil
@@ -237,7 +238,7 @@ func generatePrompt(ctx context.Context, model *genai.GenerativeModel, prompt st
 	resp, err := model.GenerateContent(ctx, genai.Text(prompt))
 
 	if err != nil {
-		errors <- err
+        errors <- fmt.Errorf("error generating content - error: %v", err)
 		return
 	}
 
@@ -258,26 +259,24 @@ func addLineBgColor(line, color string) string {
 }
 
 // ----------------- generateHeader() -----------------
-func generateHeader(title string) string {
-	width, _, err := term.GetSize(0)
-	width /= 2
+func generateHeader(headerText string) string {
+    	width, _, err := term.GetSize(0)
 	if err != nil {
-		width = 80
+		fmt.Println("Error getting terminal size:", err)
+		return ""
 	}
 
-	thirdWidthSpace := strings.Repeat(" ", width/3)
+	// box width is len(headerText) + 2*headerPadding
+	headerPadding := 10
+	boxWidth := len(headerText) + (2 * headerPadding)
 
-	line := thirdWidthSpace + addLineBgColor(thirdWidthSpace, "black") + thirdWidthSpace + "\n"
+	leftPadding := (width - (boxWidth + 2)) / 2
 
-	titlePadding := (width/3 - len(title)) / 2
-	// fmt.Println("width:", width, "| width/3:", width/3, "| titlePadding:", titlePadding, "| titlePadding + len(title) + titlePadding:", titlePadding+len(title)+titlePadding)
+	topBorder := strings.Repeat(" ", leftPadding) + "┌" + strings.Repeat("─", boxWidth) + "┐"
+	centerText := strings.Repeat(" ", leftPadding+1) + "│" + strings.Repeat(" ", headerPadding) + headerText + strings.Repeat(" ", headerPadding-1) + "│"
+	botBorder := strings.Repeat(" ", leftPadding) + "└" + strings.Repeat("─", boxWidth) + "┘"
 
-	combinedString := strings.Repeat(" ", titlePadding) + title + strings.Repeat(" ", titlePadding)
+	finalHeader := "\n" + topBorder + "\n" + centerText + "\n" + botBorder + "\n"
 
-	if len(combinedString) < width/3 {
-		combinedString += strings.Repeat(" ", (width/3)-len(combinedString))
-	}
-	formattedHeader := thirdWidthSpace + addLineBgColor(combinedString, "black") + thirdWidthSpace + "\n"
-
-	return line + formattedHeader + line
+    return finalHeader
 }

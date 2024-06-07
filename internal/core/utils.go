@@ -8,9 +8,10 @@ import (
 	"strings"
 
     "github.com/nexidian/gocliselect"
-	"github.com/alecthomas/chroma/lexers"
+	// "github.com/alecthomas/chroma/lexers"
 	"github.com/TyPeterson/TermJot/models"
     tm "github.com/buger/goterm"
+    "golang.org/x/term"
 )
 
 // ------------- promptForInput -------------
@@ -109,75 +110,68 @@ func filterTermsByName(terms []models.Term, name string) []models.Term {
 	return filtered
 }
 
-// ------------- ColorText -------------
-// color single words/tokens to a specific color
-func ColorText(text, color string) string {
-	colorCode, exists := models.ColorsMap[color]
-	if !exists {
-		return text
-	}
-
-	return fmt.Sprintf("\033[38;5;%dm%s\033[38;5;15m\033[48;2;57;54;70m", colorCode, text)
-}
-
-// ------------- colorTokens -------------
-// color all the tokens in a code block to their specific colors
-func colorTokens(text, lang string) string {
-	lexer := lexers.Get(lang)
-	it, err := lexer.Tokenise(nil, text)
-	var finalFormattedCode string
-
+// ------------- drawBoxHeader -------------
+func drawBoxHeader(headerText string) {
+	width, _, err := term.GetSize(0)
 	if err != nil {
-		fmt.Println("Error tokenizing:", err)
-		return ""
+		fmt.Println("Error getting terminal size:", err)
+		return
 	}
 
-	for _, token := range it.Tokens() {
-		color := models.TokenColors[token.Type]
-		finalFormattedCode += ColorText(token.Value, color)
-	}
+	// box width is len(headerText) + 2*headerPadding
+	headerPadding := 10
+	boxWidth := len(headerText) + (2 * headerPadding)
 
-	return finalFormattedCode
-}
+	leftPadding := (width - (boxWidth + 2)) / 2
 
-// ------------- padLine -------------
-func padLine(line string) string {
-	paddingLen := 150 - len(line)
-	spacesStr := strings.Repeat(" ", paddingLen)
-	finalStr := fmt.Sprintf("%s%s", line, spacesStr)
-	return finalStr
+	topBorder := strings.Repeat(" ", leftPadding) + "┌" + strings.Repeat("─", boxWidth) + "┐"
+	centerText := strings.Repeat(" ", leftPadding) + "│" + strings.Repeat(" ", headerPadding) + headerText + strings.Repeat(" ", headerPadding) + "│"
+	botBorder := strings.Repeat(" ", leftPadding) + "└" + strings.Repeat("─", boxWidth) + "┘"
+
+	finalHeader := topBorder + NL + centerText + NL + botBorder + NL
+
+	fmt.Println(finalHeader)
+
 }
 
 // ------------- extractCodeBlocks -------------
 func extractCodeBlocks(text string) string {
-	re := regexp.MustCompile("(?s)```\\s*(\\w+)?(.*?)```")
+    re := regexp.MustCompile("(?s)```\\s*(\\w+)?(.*?)```")
+	submatches := re.FindAllStringSubmatchIndex(text, -1)
 
-	result := re.ReplaceAllStringFunc(text, func(match string) string {
-		submatches := re.FindStringSubmatch(match)
-		if len(submatches) < 3 {
-			fmt.Println("Error extracting code block - no word after opening backticks")
-			return match
+	var codeBlocks []string
+	for _, match := range submatches {
+		codeBlockWithLang := text[match[2]:match[3]] + text[match[4]:match[5]]
+		lines := strings.Split(codeBlockWithLang, "\n")
+		if len(lines) < 2 {
+			continue
 		}
-		lang := submatches[1]
-		if lang == "" {
-			fmt.Println("Error extracting code block - no language specified")
-			return match
+		lang := lines[0]
+        // add tab to each line within code block
+        for i, line := range lines {
+            lines[i] = "\t" + line
+        }
+
+		codeBlock := strings.Join(lines[1:], "\n")
+		coloredBlock := BackgroundColor(ColorBlockTokens(LineBreak(' ') + NL + codeBlock + LineBreak(' ') + NL, lang), 232)
+		codeBlocks = append(codeBlocks, coloredBlock)
+	}
+
+	var result strings.Builder
+	lastIndex := 0
+
+	for i, match := range submatches {
+		result.WriteString(text[lastIndex:match[0]])
+		if i < len(codeBlocks) {
+			result.WriteString(codeBlocks[i])
 		}
-		codeBlock := submatches[2]
-		coloredBlock := colorTokens(codeBlock, lang)
+		lastIndex = match[1]
+	}
+	result.WriteString(text[lastIndex:])
 
-		// add indentation to each line within code block
-		lines := strings.Split(coloredBlock, "\n")
-		for i, line := range lines {
-			lines[i] = ColorText("      ", "white") + line
-		}
-		coloredBlock = strings.Join(lines[1:], "\n")
-
-		return "\033[48;2;57;54;70m\n\n" + coloredBlock + "\033[0m"
-	})
-
-	return result
+	return result.String()
 }
+
 
 // ------------- replaceTabs -------------
 func replaceTabs(text string, tabWidth int) string {
@@ -191,7 +185,7 @@ func FormatMarkdown(text string) string {
 	text = formatItalic(text)
 	text = formatUnderline(text)
 	text = formatInlineCode(text)
-	text = replaceTabs(text, 4)
+	text = replaceTabs(text, 2)
 	return text
 }
 
