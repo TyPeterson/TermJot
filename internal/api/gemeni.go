@@ -150,7 +150,6 @@ func generateContent(term, category, contentType string) string {
 		"\n",
 		" ##########\n",
 		"# FORMATTING #\n",
-		"Use markdown to format the content of your response\n",
 		"Use markdown code blocks to display code snippets\n",
 		"Only give exactly what is being requested, and nothing more\n",
 		" ##########\n",
@@ -163,17 +162,18 @@ func generateContent(term, category, contentType string) string {
 		"# PROMPT #",
 	)
 
-	definitionPrompt := superPrompt + "Generate an insightful, concise, and brief (3-4 sentences) overview of the following concept: " + term + "\n"
+	definitionPrompt := superPrompt + "Generate an insightful, concise, and brief (3-4 sentences) overview of the following concept: " + term + "\n" + "DO NOT USE ANY MARKDOWN FORMATTING IN THE RESPONSE\n"
 	examplePrompt := superPrompt +
 		"Generate a clear, informative, and easy to digest example/guide to display on how " +
 		term +
 		" works\n" +
-		"// The example should be a code snippet within a markdown block if possible\n" +
+		"// The example should be a code snippet within a markdown code block\n" +
 		"// A good example will demonstrate potentially unique ascpects or nuances about" +
 		term +
 		"\n" +
-		"// A good response will include only a single example the is first preceeded with a brief overview of what the example is domonstrating.\n" +
-		"// A good response will have an example code snippet given in a markdown code block with the language specified included in the markdown formatting\n"
+		"// A good response will include only a single example, given in a markdown code block\n" +
+		"// A good response will have an example code snippet given in a markdown code block with the language specified included in the markdown formatting\n" +
+        "// The example will contain exclusively the code snippet and nothing more\n"
 
 
     results := ""

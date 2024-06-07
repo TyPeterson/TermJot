@@ -5,11 +5,14 @@ import (
 	"strings"
 	"time"
     "sync"
-
+    "golang.org/x/term"
 	"github.com/TyPeterson/TermJot/internal/api"
 	"github.com/TyPeterson/TermJot/internal/core"
 	"github.com/spf13/cobra"
 )
+
+const NL = "\n"
+
 
 // ------------- showLoading -------------
 func showLoading(done chan bool) {
@@ -19,6 +22,9 @@ func showLoading(done chan bool) {
 
     // hide cursor
     fmt.Print("\033[?25l")
+
+
+
     defer fmt.Print("\033[?25h") // reshow cursor after function returns
 
     for {
@@ -32,6 +38,32 @@ func showLoading(done chan bool) {
             time.Sleep(100 * time.Millisecond)
     }
     }
+}
+
+// ------------- printWithMargins -------------
+func printWithMargins(text string, margin int) {
+	width, _, err := term.GetSize(0)
+	if err != nil {
+		panic(err)
+	}
+
+    text = strings.TrimLeft(text, "\n")
+	leftMargin := strings.Repeat(" ", margin)
+
+	currentLineCount := 0
+	// count word by word, and if currentLineCount + word.length > (width - margin), then print newline
+	words := strings.Split(text, " ")
+	fmt.Printf(leftMargin)
+
+	for _, word := range words {
+		if currentLineCount + len(word) > (width - (margin*2)) {
+			fmt.Printf("%s%s", NL, leftMargin)
+			currentLineCount = 0
+		}
+		fmt.Print(word + " ")
+		currentLineCount += len(word) + 1
+	}
+
 }
 
 // ------------- displayTextWithSprite -------------
@@ -110,14 +142,15 @@ var explainCmd = &cobra.Command{
         r1 := core.FormatMarkdown(<-definitionResult)
         r2 := core.FormatMarkdown(<-exampleResult)
 
-        definitionHeader := api.GenerateHeader("Definition")
+        definitionHeader := api.GenerateHeader("Description")
         exampleHeader := api.GenerateHeader("Example")
 
         fmt.Println("\n" + definitionHeader + "\n")
-        displayTextWithSprite(r1)
+        printWithMargins(r1, 20)
 
-        fmt.Println("\n" + exampleHeader + "\n")
+        fmt.Println("\n" + exampleHeader)
         displayTextWithSprite(r2)
+        // printWithMargins(r2, 20)
 
 
 		defer time.Sleep(500 * time.Millisecond) // sleep a little before exiting
