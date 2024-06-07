@@ -64,15 +64,14 @@ func ColorBlockTokens(text, lang string) string {
 		finalColoredBlock += coloredToken
 	}
 
-    fmt.Println("made it here")
-    fmt.Println(BackgroundColor(LineBreak(' '), 232))
+    // fmt.Println(BackgroundColor(LineBreak(' '), 232))
     // realFinalColoredBlock :=
 //       " " +
 //       NL +
         // LineBreak(' ')  +
         // finalColoredBlock
 
-   return BackgroundColor(finalColoredBlock, 232) + NL + LineBreak(' ')
+   return BackgroundColor(finalColoredBlock, 235) + NL + LineBreak(' ')
 
     // return  LineBreak(' ') + NL + finalColoredBlock  + NL
 }

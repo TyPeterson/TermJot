@@ -153,7 +153,7 @@ func extractCodeBlocks(text string) string {
         }
 
 		codeBlock := strings.Join(lines[1:], "\n")
-		coloredBlock := BackgroundColor(ColorBlockTokens(LineBreak(' ') + NL + codeBlock + LineBreak(' ') + NL, lang), 232)
+		coloredBlock := ColorBlockTokens(LineBreak(' ') + NL + codeBlock + LineBreak(' ') + NL, lang)
 		codeBlocks = append(codeBlocks, coloredBlock)
 	}
 
