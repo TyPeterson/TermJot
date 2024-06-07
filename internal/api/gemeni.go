@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+    "os"
 	"github.com/google/generative-ai-go/genai"
 	"google.golang.org/api/option"
 )
@@ -18,8 +19,7 @@ func InitializeGeminiClient() {
 	// 	log.Fatalf("Error loading .env file: %v", err)
 	// }
 
-    apiKey := "AIzaSyCrFqdIPZnSsvJJvsL7vcUe7weTFehnGLQ"
-	// apiKey := os.Getenv("GEMINI_API_KEY")
+    apiKey := os.Getenv("GEMINI_API_KEY")
 	if apiKey == "" {
 		log.Fatalf("API key not found in environment variables")
 	}

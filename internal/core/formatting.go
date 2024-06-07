@@ -38,18 +38,14 @@ func BackgroundColorRBG(text string, r, g, b int) string {
 }
 
 
-// ------------- ReplaceTabs -------------
-func ReplaceTabs(text string, tabSize int) string {
+// ------------- replaceTabs -------------
+func replaceTabs(text string, tabSize int) string {
 	return strings.ReplaceAll(text, "\t", strings.Repeat(" ", tabSize))
 }
 
 // ------------- LineBreak -------------
 func LineBreak(char rune) string {
-    width, _, err := term.GetSize(0)
-    if err != nil {
-        return ""
-    }
-    return strings.Repeat(string(char), width)
+    return strings.Repeat(string(char), WIDTH)
 }
 
 
@@ -74,32 +70,20 @@ func ColorBlockTokens(text, lang string) string {
 		finalColoredBlock += coloredToken
 	}
 
-    // fmt.Println(BackgroundColor(LineBreak(' '), 232))
-    // realFinalColoredBlock :=
-//       " " +
-//       NL +
-        // LineBreak(' ')  +
-        // finalColoredBlock
-
-   return BackgroundColor(finalColoredBlock, 235) + NL + LineBreak(' ')
 
     // return  LineBreak(' ') + NL + finalColoredBlock  + NL
+    return BackgroundColor(finalColoredBlock, 235) + NL + LineBreak(' ')
 }
 
 
 // ----------------- generateHeader() -----------------
 func GenerateHeader(headerText string) string {
-    	width, _, err := term.GetSize(0)
-	if err != nil {
-		fmt.Println("Error getting terminal size:", err)
-		return ""
-	}
 
 	// box width is len(headerText) + 2*headerPadding
 	headerPadding := 10
 	boxWidth := len(headerText) + (2 * headerPadding)
 
-	leftPadding := (width - (boxWidth + 2)) / 2
+	leftPadding := (WIDTH - (boxWidth + 2)) / 2
 
 	topBorder := strings.Repeat(" ", leftPadding) + "┌" + strings.Repeat("─", boxWidth) + "┐"
 	centerText := strings.Repeat(" ", leftPadding) + "│" + strings.Repeat(" ", headerPadding) + headerText + strings.Repeat(" ", headerPadding) + "│"
@@ -118,33 +102,14 @@ func FormatMarkdown(text string) string {
 	text = formatBold(text)
 	text = formatItalic(text)
 	text = formatUnderline(text)
-	text = formatInlineCode(text)
 	text = replaceTabs(text, 2)
 	return text
 }
 
 // ------------- formatBold -------------
 func formatBold(text string) string {
-	re := regexp.MustCompile(`\*\*(.*?)\*\*`)
-	return re.ReplaceAllString(text, "\033[1m$1\033[0m")
-}
-
-// ------------- formatUnderline -------------
-func formatUnderline(text string) string {
-	re := regexp.MustCompile(`__(.*?)__`)
-	return re.ReplaceAllString(text, "\033[4m$1\033[0m")
-}
-
-// ------------- formatItalic -------------
-func formatItalic(text string) string {
-	re := regexp.MustCompile(`\*(.*?)\*`)
-	return re.ReplaceAllString(text, "\033[3m$1\033[0m")
-}
-
-// ------------- formatInlineCode -------------
-func formatInlineCode(text string) string {
-	re := regexp.MustCompile("`([^`]*)`")
-	return re.ReplaceAllString(text, "\033[22m$1\033[22m")
+	// re := regexp.MustCompile(`\*\*(.*?)\*\*`)
+    return fmt.Sprintf("\033[1m%s\033[0m", text)
 }
 
 // ------------- formatFaint -------------
@@ -152,12 +117,27 @@ func formatFaint(text string) string {
     return fmt.Sprintf("\033[2m%s\033[0m", text)
 }
 
+// ------------- formatItalic -------------
+func formatItalic(text string) string {
+	// re := regexp.MustCompile(`\*(.*?)\*`)
+    return fmt.Sprintf("\033[3m%s\033[0m", text)
+}
+
+// ------------- formatUnderline -------------
+func formatUnderline(text string) string {
+    // re := regexp.MustCompile(`__(.*?)__`)
+    return fmt.Sprintf("\033[4m%s\033[0m", text)
+}
+
+// ------------- formatInverted -------------
+func formatInverted(text string) string {
+	// re := regexp.MustCompile("`([^`]*)`")
+    return fmt.Sprintf("\033[7m%s\033[0m", text)
+}
+
+
 // ------------- formatWithMargins -------------
 func formatWithMargins(text string, margin int) {
-	width, _, err := term.GetSize(0)
-	if err != nil {
-		panic(err)
-	}
 
     text = strings.TrimLeft(text, "\n")
 	leftMargin := strings.Repeat(" ", margin)
@@ -168,7 +148,7 @@ func formatWithMargins(text string, margin int) {
 	fmt.Printf(leftMargin)
 
 	for _, word := range words {
-		if currentLineCount + len(word) > (width - (margin*2)) {
+		if currentLineCount + len(word) > (WIDTH - (margin*2)) {
 			fmt.Printf("%s%s", NL, leftMargin)
 			currentLineCount = 0
 		}
