@@ -12,23 +12,23 @@ import (
 
 const NL = "\n"
 
-// ------------- fgColor -------------
+// ------------- TextColor -------------
 func TextColor(text string, color int) string {
 	return fmt.Sprintf("\033[38;5;%dm%s\033[38;5;15m", color, text)
 }
 
-// ------------- bgColor -------------
+// ------------- BackgroundColor -------------
 func BackgroundColor(text string, color int) string {
 	return fmt.Sprintf("\033[48;5;%dm%s\033[0m", color, text)
 }
 
-// ------------- bgColorRBG -------------
+// ------------- BackgroundColorRBG -------------
 func BackgroundColorRBG(text string, r, g, b int) string {
 	return fmt.Sprintf("\033[48;2;%d;%d;%dm%s\033[0m", r, g, b, text)
 }
 
 
-// ------------- replaceTabs -------------
+// ------------- ReplaceTabs -------------
 func ReplaceTabs(text string, tabSize int) string {
 	return strings.ReplaceAll(text, "\t", strings.Repeat(" ", tabSize))
 }
@@ -77,7 +77,6 @@ func ColorBlockTokens(text, lang string) string {
 		}
 		finalColoredBlock += coloredToken
 	}
-
 
 	return finalColoredBlock
 }
