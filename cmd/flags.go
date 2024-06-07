@@ -1,8 +1,8 @@
 package cmd
 
 var (
+    termName   string
 	category   string
-    definition string
 	done       bool
 	all        bool
 	categories bool
@@ -11,8 +11,10 @@ var (
 )
 
 func InitFlags() {
-    addCmd.Flags().StringVarP(&definition, "definition", "d", "", "Provide a definition for the term")
+    addCmd.Flags().StringVarP(&termName, "termName", "t", "", "Specify the term to add")
 	addCmd.Flags().StringVarP(&category, "category", "c", "", "Specify a category to add the term to")
+    addCmd.Flags().BoolVarP(&define, "def", "d", false, "Provide a definition for the term")
+
 
 	removeCmd.Flags().StringVarP(&category, "category", "c", "", "Specify a category to remove the term from")
 
@@ -27,8 +29,5 @@ func InitFlags() {
 	listCmd.Flags().BoolVarP(&all, "all", "a", false, "List both 'active' and 'done' terms")
 	listCmd.Flags().BoolVarP(&categories, "categories", "g", false, "List all unique categories")
 
-    // add define flags (-c)
-    defineCmd.Flags().StringVarP(&category, "category", "c", "", "Specify a category to define the term in")
-    defineCmd.Flags().StringVarP(&definition, "definition", "d", "", "Provide a definition for the term")
 
 }

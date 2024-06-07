@@ -5,7 +5,12 @@ go 1.22.3
 require github.com/spf13/cobra v1.8.0
 
 require (
+	github.com/buger/goterm v1.0.4 // indirect
+	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
 	github.com/dlclark/regexp2 v1.10.0 // indirect
+	github.com/manifoldco/promptui v0.9.0 // indirect
+	github.com/nexidian/gocliselect v1.0.0 // indirect
+	github.com/pkg/term v1.1.0 // indirect
 	github.com/pkoukk/tiktoken-go v0.1.6 // indirect
 )
 

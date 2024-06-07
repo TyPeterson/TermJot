@@ -30,6 +30,7 @@ func init() {
 	rootCmd.AddCommand(listCmd)
 
 	rootCmd.AddCommand(testCmd)
-    rootCmd.AddCommand(defineCmd)
-	InitFlags()
+
+    InitFlags()
+
 }
