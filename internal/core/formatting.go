@@ -24,17 +24,17 @@ func setWidth() int {
 
 // ------------- TextColor -------------
 func TextColor(text string, color int) string {
-	return fmt.Sprintf("\033[38;5;%dm%s\033[38;5;15m", color, text)
+	return fmt.Sprintf("\x1b[38;5;%dm%s\x1b[39m", color, text)
 }
 
 // ------------- BackgroundColor -------------
 func BackgroundColor(text string, color int) string {
-	return fmt.Sprintf("\033[48;5;%dm%s\033[0m", color, text)
+	return fmt.Sprintf("\x1b[48;5;%dm%s\x1b[0m", color, text)
 }
 
 // ------------- BackgroundColorRBG -------------
 func BackgroundColorRBG(text string, r, g, b int) string {
-	return fmt.Sprintf("\033[48;2;%d;%d;%dm%s\033[0m", r, g, b, text)
+	return fmt.Sprintf("\x1b[48;2;%d;%d;%dm%s\x1b[0m", r, g, b, text)
 }
 
 
@@ -109,30 +109,30 @@ func FormatMarkdown(text string) string {
 // ------------- formatBold -------------
 func formatBold(text string) string {
 	// re := regexp.MustCompile(`\*\*(.*?)\*\*`)
-    return fmt.Sprintf("\033[1m%s\033[0m", text)
+    return fmt.Sprintf("\x1b[1m%s\x1b[22m", text)
 }
 
 // ------------- formatFaint -------------
 func formatFaint(text string) string {
-    return fmt.Sprintf("\033[2m%s\033[0m", text)
+    return fmt.Sprintf("\x1b[2m%s\x1b[22m", text)
 }
 
 // ------------- formatItalic -------------
 func formatItalic(text string) string {
 	// re := regexp.MustCompile(`\*(.*?)\*`)
-    return fmt.Sprintf("\033[3m%s\033[0m", text)
+    return fmt.Sprintf("\x1b[3m%s\x1b[23m", text)
 }
 
 // ------------- formatUnderline -------------
 func formatUnderline(text string) string {
     // re := regexp.MustCompile(`__(.*?)__`)
-    return fmt.Sprintf("\033[4m%s\033[0m", text)
+    return fmt.Sprintf("\x1b[4m%s\x1b[24m", text)
 }
 
 // ------------- formatInverted -------------
 func formatInverted(text string) string {
 	// re := regexp.MustCompile("`([^`]*)`")
-    return fmt.Sprintf("\033[7m%s\033[0m", text)
+    return fmt.Sprintf("\x1b[7m%s\x1b[27m", text)
 }
 
 

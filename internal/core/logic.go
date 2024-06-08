@@ -25,7 +25,7 @@ func HandleAdd(termName, categoryName string) {
         definition = promptForInput("Definition: ")
     }
 
-    AddTerm(termName, definition, categoryName)
+    AddTerm(termName, categoryName, definition)
 }
 
 // ------------- HandleDefine -------------
@@ -56,6 +56,10 @@ func HandleDefine(termName, categoryName string) {
 
 // ------------- AddTerm -------------
 func AddTerm(termName, categoryName, definition string) error {
+
+    if definition == "" {
+        definition = "..."
+    }
 
 	term := models.Term {
 		Name:     termName,
@@ -194,7 +198,23 @@ func GetSortedByCategory() []models.Term {
 
 // ------------- ListAllTerms -------------
 func ListAllTerms(showDone, showDoneAndActive bool) {
+    // get all terms sorted by category and print them out
+    sortedTerms := GetSortedByCategory()
+    uniqueCategories := GetUniqueCategories()
+    numCategories := len(uniqueCategories)
 
+    for _, term := range sortedTerms {
+        var categoryFormatted string
+        if term.Category == "" {
+            categoryFormatted = "[   ]"
+        } else {
+            categoryIndex := indexOfString(uniqueCategories, term.Category)
+            color := (categoryIndex * (256/numCategories)) + 1
+            categoryFormatted = fmt.Sprintf("%s%s%s", TextColor("[", 15), TextColor(term.Category, color), TextColor("]", 15))
+        }
+        fmt.Printf("   %s\t\t%s: %s\n", categoryFormatted, formatBold(term.Name), formatItalic(formatFaint(term.Definition)))
+        // potentially add newline between each category by checking if previous term's category is different
+    }
 }
 
 // ------------- ListCategoryTerms -------------
@@ -205,6 +225,22 @@ func ListCategoryTerms(categoryName string, showDone bool, showDoneAndActive boo
 
 // ------------- ListAllCategories -------------
 func ListAllCategories() {
+    // fmt.Print("\x1b[48;5;232m")
+    // get all unique categories and print them out
+    uniqueCategories := GetUniqueCategories()
+
+    fmt.Printf("\n    %s\n\n", formatUnderline(formatBold("Categories:")))
+
+    for idx, category := range uniqueCategories {
+        color := (idx * (256/len(uniqueCategories))) + 1
+        categoryFormatted := fmt.Sprintf(" *  %s%s%s\n", TextColor("[", 15), TextColor(category, color), TextColor("]", 15))
+        if category != "" {
+            fmt.Println(categoryFormatted)
+        }
+    }
+    // fmt.Print("\x1b[0m\n")
+    // fmt.Println("after the end background color change")
+    // fmt.Println("another line")
 
 }
 
