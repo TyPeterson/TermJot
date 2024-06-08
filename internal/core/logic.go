@@ -219,6 +219,17 @@ func ListAllTerms(showDone, showDoneAndActive bool) {
 
 // ------------- ListCategoryTerms -------------
 func ListCategoryTerms(categoryName string, showDone bool, showDoneAndActive bool) {
+    // get all terms in a category and print them out
+    categoryTerms := GetTermsInCategory(categoryName)
+    formattedHeader := fmt.Sprintf("\n    %s%s%s\n", TextColor("[", 15), TextColor(categoryName, 111), TextColor("]", 15))
+
+    fmt.Println(formattedHeader)
+
+    for _, term := range categoryTerms {
+        fmt.Printf("   * %s: %s\n", formatBold(term.Name), formatItalic(formatFaint(term.Definition)))
+    }
+
+    fmt.Println()
 
 }
 
