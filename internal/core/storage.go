@@ -15,18 +15,17 @@ type Storage struct {
 
 
 // ------------- Init() -------------
-func Init()  {
+func Init() error {
 	storage, err := NewStorage()
-	if err != nil {
-		return
-	}
-	loadedTerms := storage.LoadData()
-	if err != nil {
-		return
-	}
 
+    if err != nil {
+        return err
+    }
+
+	loadedTerms := storage.LoadData()
 	terms = loadedTerms
 
+    return nil
 }
 
 

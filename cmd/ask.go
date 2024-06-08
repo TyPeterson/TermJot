@@ -100,9 +100,9 @@ func displayTextWithSprite(text string) {
 	}
 }
 
-var explainCmd = &cobra.Command{
-	Use:   "explain [-d | -e] [-c category] term",
-	Short: "Explain a term using the Gemini-1.5-Flash API",
+var askCmd = &cobra.Command{
+	Use:   "ask [-d | -e] [-c category] term",
+	Short: "Ask about term using the Gemini-1.5-Flash API",
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		term := args[0]

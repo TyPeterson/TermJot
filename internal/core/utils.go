@@ -34,15 +34,37 @@ func promptForConfirmation(label string) bool {
 // ------------- selectTerm -------------
 func selectTerm(termOptions []models.Term) (string, string) {
     menu := gocliselect.NewMenu("Select a term")
+    uniqueCategories := GetUniqueCategories()
+    numCategories := len(uniqueCategories)
 
     for _, term := range termOptions {
-        menu.AddItem(fmt.Sprintf("[%s]\t\t%s", term.Category, term.Name), fmt.Sprintf("%s-%s", term.Name, term.Category))
+        var categoryFormatted string
+        if term.Category == "" {
+            categoryFormatted = TextColor("[   ]", 15)
+        } else {
+            categoryIndex := indexOfString(uniqueCategories, term.Category)   // ensure colors are unique, evenly spaced, and range from 1-255
+            color := (categoryIndex * (256/numCategories)) + 1
+            categoryFormatted = fmt.Sprintf("%s%s%s", TextColor("[", 15), TextColor(term.Category, color), TextColor("]", 15))
+        }
+        menu.AddItem(fmt.Sprintf("%s\t\t%s", categoryFormatted, term.Name), fmt.Sprintf("%s-%s", term.Name, term.Category))
     }
 
     selected := menu.Display()
     selectedParts := strings.Split(selected, "-")
-    return selectedParts[0], selectedParts[1]
 
+    return selectedParts[0], selectedParts[1]
+}
+
+
+// ------------- indexOfString -------------
+func indexOfString(slice []string, str string) int {
+    for i, s := range slice {
+        if strings.ToLower(s) == strings.ToLower(str) {
+            return i
+        }
+    }
+
+    return -1
 }
 
 

@@ -13,7 +13,7 @@ var doneCmd = &cobra.Command{
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		term := args[0]
-		core.MarkTermAsDone(term, category)
+		core.SetTermDone(term, category)
 		if category != "" {
 			fmt.Printf("Marked term '%s' as done in category '%s'\n", term, category)
 		} else {

@@ -24,9 +24,13 @@ var listCmd = &cobra.Command{
 		}
 
 		if categories {
-			core.ListCategories()
+            core.ListAllCategories()
 		} else {
-			core.ListTerms(category, done, all)
+            if category != "" {
+                core.ListCategoryTerms(category, done, all)
+            } else {
+                core.ListAllTerms(done, all)
+            }
 		}
 	},
 }

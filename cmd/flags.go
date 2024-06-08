@@ -20,9 +20,9 @@ func InitFlags() {
 
 	doneCmd.Flags().StringVarP(&category, "category", "c", "", "Specify a category to mark the term as done in")
 
-	explainCmd.Flags().StringVarP(&category, "category", "c", "", "Specify a category to explain the term in")
-	explainCmd.Flags().BoolVarP(&define, "define", "d", false, "Provide a definition for the term")
-	explainCmd.Flags().BoolVarP(&example, "example", "e", false, "Provide an example for the term")
+	askCmd.Flags().StringVarP(&category, "category", "c", "", "Specify a category to explain the term in")
+	askCmd.Flags().BoolVarP(&define, "define", "d", false, "Provide a definition for the term")
+	askCmd.Flags().BoolVarP(&example, "example", "e", false, "Provide an example for the term")
 
 	listCmd.Flags().StringVarP(&category, "category", "c", "", "Specify a category to list terms")
 	listCmd.Flags().BoolVarP(&done, "done", "d", false, "List only 'done' terms")

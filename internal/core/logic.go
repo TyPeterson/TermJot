@@ -42,8 +42,7 @@ func HandleDefine(termName, categoryName string) {
     } else if termName == "" && categoryName != "" {
         filteredTerms = GetTermsInCategory(categoryName)
     } else {
-        filteredTerms = make([]models.Term, len(terms))
-        copy(filteredTerms, terms)
+        filteredTerms = GetSortedByCategory()
     }
 
     if len(filteredTerms) == 0 {
@@ -179,13 +178,27 @@ func GetUniqueCategories() []string {
 }
 
 
+// ------------- GetSortedByCategory -------------
+func GetSortedByCategory() []models.Term {
+    // return a []models.Term sorted by term.Category
+    uniqueCategories := GetUniqueCategories() // get all unique categories
+    sortedTerms := make([]models.Term, 0, len(terms))
+
+    for _, category := range uniqueCategories {
+        categoryTerms := GetTermsInCategory(category)
+        sortedTerms = append(sortedTerms, categoryTerms...)
+    }
+
+    return sortedTerms
+}
+
 // ------------- ListAllTerms -------------
-func ListAllTerms() {
+func ListAllTerms(showDone, showDoneAndActive bool) {
 
 }
 
 // ------------- ListCategoryTerms -------------
-func ListCategoryTerms() {
+func ListCategoryTerms(categoryName string, showDone bool, showDoneAndActive bool) {
 
 }
 
