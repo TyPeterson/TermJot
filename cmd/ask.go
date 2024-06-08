@@ -47,6 +47,9 @@ func printWithMargins(text string, margin int) {
 		panic(err)
 	}
 
+    // just manually set margin to 25% of the width
+    margin = int(float64(width) * 0.25)
+
     text = strings.TrimLeft(text, "\n")
 	leftMargin := strings.Repeat(" ", margin)
 
@@ -68,7 +71,7 @@ func printWithMargins(text string, margin int) {
 
 // ------------- displayTextWithSprite -------------
 func displayTextWithSprite(text string) {
-	fmt.Println("")
+	// fmt.Println("")
 	lines := strings.Split(text, "\n")
 
 	sprite := "⚪"
@@ -148,12 +151,16 @@ var askCmd = &cobra.Command{
         fmt.Println("\n" + definitionHeader + "\n")
         printWithMargins(r1, 20)
 
-        fmt.Println("\n" + exampleHeader)
-        displayTextWithSprite(r2)
-        // printWithMargins(r2, 20)
+        fmt.Println("\n" + exampleHeader + "\n")
 
+
+        core.PrintCodeBlock(r2)
+
+        fmt.Println("\n\n")
 
 		defer time.Sleep(500 * time.Millisecond) // sleep a little before exiting
+
 	},
 }
+
 

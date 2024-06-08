@@ -107,12 +107,21 @@ func extractCodeBlocks(text string) string {
 		}
 		lang := lines[0]
         // add tab to each line within code block
-        for i, line := range lines {
-            lines[i] = "\t" + line
-        }
+        // for i, line := range lines {
+            // lines[i] = "    " + line
 
-		codeBlock := strings.Join(lines[1:], "\n")
-		coloredBlock := ColorBlockTokens(LineBreak(' ') + NL + codeBlock + LineBreak(' ') + NL, lang)
+            // indent := int(float64(WIDTH) * 0.25)
+            // indentSpaces := strings.Repeat(" ", indent)
+            // lines[i] = indentSpaces + line
+
+        // }
+
+		// codeBlock := strings.Join(lines[1:], "\n")
+        codeBlock := strings.Join(lines, "\n")
+        // reasign first item in codeBlock to be an empty string
+        codeBlock = strings.Replace(codeBlock, lang, "", 1)
+
+		coloredBlock := ColorBlockTokens(codeBlock, lang)
 		codeBlocks = append(codeBlocks, coloredBlock)
 	}
 

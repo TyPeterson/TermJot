@@ -2,12 +2,15 @@ package core
 
 
 import (
-"fmt"
-"strings"
+    "fmt"
+    "strings"
+    "regexp"
 
-"golang.org/x/term"
-"github.com/TyPeterson/TermJot/models"
-"github.com/alecthomas/chroma/lexers"
+    "golang.org/x/term"
+    "github.com/TyPeterson/TermJot/models"
+    "github.com/alecthomas/chroma/lexers"
+
+    "time"
 )
 
 const NL = "\n"
@@ -66,13 +69,12 @@ func ColorBlockTokens(text, lang string) string {
 
 		color := models.TokenColors[token.Type]
 		coloredToken := TextColor(token.Value, models.ColorsMap[color])
-
 		finalColoredBlock += coloredToken
 	}
 
 
-    // return  LineBreak(' ') + NL + finalColoredBlock  + NL
-    return BackgroundColor(finalColoredBlock, 235) + NL + LineBreak(' ')
+    return finalColoredBlock
+    // return BackgroundColor(finalColoredBlock, 235) + NL + LineBreak(' ')
 }
 
 
@@ -89,7 +91,7 @@ func GenerateHeader(headerText string) string {
 	centerText := strings.Repeat(" ", leftPadding) + "│" + strings.Repeat(" ", headerPadding) + headerText + strings.Repeat(" ", headerPadding) + "│"
 	botBorder := strings.Repeat(" ", leftPadding) + "└" + strings.Repeat("─", boxWidth) + "┘"
 
-	finalHeader := "\n" + topBorder + "\n" + centerText + "\n" + botBorder + "\n"
+	finalHeader := "\n" + topBorder + "\n" + centerText + "\n" + botBorder
 
     return finalHeader
 }
@@ -99,10 +101,10 @@ func GenerateHeader(headerText string) string {
 // ------------- formatMarkdown -------------
 func FormatMarkdown(text string) string {
 	text = extractCodeBlocks(text)
-	text = formatBold(text)
-	text = formatItalic(text)
-	text = formatUnderline(text)
-	text = replaceTabs(text, 2)
+	// text = formatBold(text)
+	// text = formatItalic(text)
+	// text = formatUnderline(text)
+	text = replaceTabs(text, 4)
 	return text
 }
 
@@ -157,4 +159,37 @@ func formatWithMargins(text string, margin int) {
 	}
 
 }
+
+
+// ------------- stripAnsiCodes -------------
+func stripAnsiCodes(input string) string {
+	re := regexp.MustCompile(`\x1b\[[0-9;]*m`)
+	return re.ReplaceAllString(input, "")
+}
+
+// ------------- padLine -------------
+func padLine(text string) string {
+	width, _, _ := term.GetSize(0)
+	padding := int(float64(width) * 0.25)
+    textLen := len(stripAnsiCodes(text))
+
+	coloredPadding := BackgroundColor(strings.Repeat(" ", padding), 0)
+
+	textRightPadding := (width - textLen) - (padding*2)
+	coloredText := BackgroundColor(text+strings.Repeat(" " , textRightPadding), 235)
+
+	return coloredPadding + coloredText + coloredPadding
+}
+
+
+// ------------- printCodeBlock -------------
+func PrintCodeBlock(text string) {
+
+    for _, line := range strings.Split(text, NL) {
+        fmt.Println(padLine("    " + line))
+        time.Sleep(100 * time.Millisecond)
+    }
+
+}
+
 
