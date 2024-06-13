@@ -252,7 +252,11 @@ func ListCategoryTerms(categoryName string, showDone bool, color int) {
 			fmt.Printf("\n%s\n", formattedHeader)
 			headerPrinted = true
 		}
-		termFormatted := fmt.Sprintf("%s\t* %s: %s\n", marginString, formatBold(term.Name), formatItalic(formatFaint(term.Definition)))
+        box := "☐" 
+        if showDone {
+            box = "☑"
+        }
+		termFormatted := fmt.Sprintf("%s\t%s   %s: %s\n", marginString, box, formatBold(term.Name), formatItalic(formatFaint(term.Definition)))
 		fmt.Println(termFormatted)
 	}
 
