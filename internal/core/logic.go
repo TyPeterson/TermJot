@@ -113,7 +113,7 @@ func AddTerm(termName, categoryName, definition string) error {
 		definition = "..."
 	}
 	if categoryName == "" {
-		categoryName = "_all_"
+		categoryName = "_none_"
 	}
 
 	term := models.Term{
@@ -256,8 +256,8 @@ func ListCategoryTerms(categoryName string, showDone bool, color int) {
         if showDone {
             box = "☑"
         }
-		termFormatted := fmt.Sprintf("%s\t%s   %s: %s\n", marginString, box, formatBold(term.Name), formatItalic(formatFaint(term.Definition)))
-		fmt.Println(termFormatted)
+		termFormatted := fmt.Sprintf("   %s   %s: %s\n", box, formatBold(term.Name), formatItalic(formatFaint(term.Definition)))
+		fmt.Println(strings.ReplaceAll(AddLineMargin(termFormatted), fmt.Sprintf("%s%s", NL, marginString), fmt.Sprintf("%s%s%s", NL, marginString, strings.Repeat(" ", 7))))
 	}
 
 }

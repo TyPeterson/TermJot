@@ -159,38 +159,83 @@ func FormatMarkdown(text string) string {
 }
 
 // ------------- AddMargins -------------
-func AddMargins(text string) string {
+// func AddMargins(text string) string {
+//
+// 	text = strings.TrimLeft(text, NL)
+//
+// 	lines := strings.Split(text, NL)
+//
+// 	var result []string
+//
+// 	// iterate through each line, and split by words
+// 	for _, line := range lines {
+// 		currentLine := marginString
+// 		currentLineCount := len(marginString)
+//
+// 		words := strings.Split(line, " ")
+// 		for _, word := range words {
+// 			wordLen := len(stripAnsiCodes(word))
+//
+// 			if currentLineCount+wordLen > (WIDTH - margin) {
+// 				result = append(result, currentLine)
+// 				currentLine = marginString + word
+// 				currentLineCount = len(marginString) + wordLen + 1
+// 			} else {
+// 				if currentLineCount > len(marginString) {
+// 					currentLine += " "
+// 					currentLineCount++
+// 				}
+// 				currentLine += word
+// 				currentLineCount += wordLen + 1
+// 			}
+//
+// 		}
+// 		result = append(result, currentLine)
+// 	}
+//
+// 	return strings.Join(result, NL)
+// }
 
+// ------------- AddLineMargin -------------
+func AddLineMargin(line string) string {
+	currentLine := marginString
+	currentLineCount := len(marginString)
+
+	words := strings.Split(line, " ")
+	var result []string
+
+	for _, word := range words {
+		wordLen := len(stripAnsiCodes(word))
+
+		if currentLineCount+wordLen > (WIDTH - margin) {
+			result = append(result, currentLine)
+			currentLine = marginString + word
+			currentLineCount = len(marginString) + wordLen + 1
+		} else {
+			if currentLineCount > len(marginString) {
+				currentLine += " "
+				currentLineCount++
+			}
+			currentLine += word
+			currentLineCount += wordLen + 1
+		}
+	}
+
+	result = append(result, currentLine)
+	return strings.Join(result, NL)
+}
+
+// ------------- AddMargins -------------
+func AddMargins(text string) string {
 	text = strings.TrimLeft(text, NL)
 
 	lines := strings.Split(text, NL)
 
 	var result []string
 
-	// iterate through each line, and split by words
 	for _, line := range lines {
-		currentLine := marginString
-		currentLineCount := len(marginString)
-
-		words := strings.Split(line, " ")
-		for _, word := range words {
-			wordLen := len(stripAnsiCodes(word))
-
-			if currentLineCount+wordLen > (WIDTH - margin) {
-				result = append(result, currentLine)
-				currentLine = marginString + word
-				currentLineCount = len(marginString) + wordLen + 1
-			} else {
-				if currentLineCount > len(marginString) {
-					currentLine += " "
-					currentLineCount++
-				}
-				currentLine += word
-				currentLineCount += wordLen + 1
-			}
-
-		}
-		result = append(result, currentLine)
+		formattedLine := AddLineMargin(line)
+		result = append(result, formattedLine)
 	}
 
 	return strings.Join(result, NL)
