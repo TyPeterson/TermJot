@@ -2,12 +2,12 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/TyPeterson/TermJot/internal/api"
+	// "github.com/TyPeterson/TermJot/internal/api"
 	"github.com/TyPeterson/TermJot/internal/core"
 	"github.com/spf13/cobra"
 	"golang.org/x/term"
 	"strings"
-	"sync"
+	// "sync"
 	"time"
 )
 
@@ -101,59 +101,61 @@ func displayTextWithSprite(text string) {
 }
 
 var askCmd = &cobra.Command{
-	Use:   "ask [-d | -e] [-c category] term",
+	Use:   "ask [-v | -s] [-c category] prompt",
 	Short: "Ask about term using the Gemini-1.5-Flash API",
-	Args:  cobra.MinimumNArgs(1),
+    Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		term := args[0]
+        prompt := args[0]
 
-		api.InitializeGeminiClient()
+        core.HandleAsk(prompt, category, verbose, short)
 
-		done := make(chan bool)
-		var wg sync.WaitGroup
-
-		definitionResult := make(chan string)
-		exampleResult := make(chan string)
-
-		// start showing loading animation
-		go showLoading(done)
-
-		// start first goroutine
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			definitionResult <- api.GenerateDefinition(term, category)
-		}()
-
-		// start second goroutine
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			exampleResult <- api.GenerateExample(term, category)
-		}()
-
-		// wait for all goroutines to finish
-		go func() {
-			wg.Wait()
-			close(done)
-		}()
-
-		r1 := core.FormatMarkdown(<-definitionResult)
-		r2 := core.FormatMarkdown(<-exampleResult)
-
-		definitionHeader := core.GenerateHeader("Description", true)
-		exampleHeader := core.GenerateHeader("Example", true)
-
-		fmt.Println("\n" + definitionHeader + "\n")
-		printWithMargins(r1, 20)
-
-		fmt.Println("\n" + exampleHeader + "\n")
-
-		core.PrintCodeBlock(r2)
-
-		fmt.Println("\n\n")
-
+		// api.InitializeGeminiClient()
+		//
+		// done := make(chan bool)
+		// var wg sync.WaitGroup
+		//
+		// definitionResult := make(chan string)
+		// exampleResult := make(chan string)
+		//
+		// // start showing loading animation
+		// go showLoading(done)
+		//
+		// // start first goroutine
+		// wg.Add(1)
+		// go func() {
+		// 	defer wg.Done()
+		// 	definitionResult <- api.GenerateDefinition(prompt, category)
+		// }()
+		//
+		// // start second goroutine
+		// wg.Add(1)
+		// go func() {
+		// 	defer wg.Done()
+		// 	exampleResult <- api.GenerateExample(prompt, category)
+		// }()
+		//
+		// // wait for all goroutines to finish
+		// go func() {
+		// 	wg.Wait()
+		// 	close(done)
+		// }()
+		//
+		// r1 := core.FormatMarkdown(<-definitionResult)
+		// r2 := core.FormatMarkdown(<-exampleResult)
+		//
+		// definitionHeader := core.GenerateHeader("Description", true)
+		// exampleHeader := core.GenerateHeader("Example", true)
+		//
+		// fmt.Println("\n" + definitionHeader + "\n")
+		// printWithMargins(r1, 20)
+		//
+		// fmt.Println("\n" + exampleHeader + "\n")
+		//
+		// core.PrintCodeBlock(r2)
+		//
+		// fmt.Printf("\n\n")
+		//
 		// defer time.Sleep(500 * time.Millisecond) // sleep a little before exiting
-
+		//
 	},
 }

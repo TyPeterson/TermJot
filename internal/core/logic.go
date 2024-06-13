@@ -2,9 +2,13 @@ package core
 
 import (
 	"fmt"
+	"strings"
+	// "time"
+	// "sync"
+
+	"github.com/TyPeterson/TermJot/internal/api"
 	"github.com/TyPeterson/TermJot/models"
 	"github.com/spf13/cobra"
-	"strings"
 )
 
 var terms []models.Term
@@ -65,6 +69,41 @@ func HandleDone(termName, categoryName string) {
 	}
 
 	SetTermDone(termName, categoryName)
+}
+
+// ------------- HandleAsk -------------
+func HandleAsk(question string, categoryName string, verbose, short bool) {
+
+	prompt := question
+	var responseType string
+
+	var geminiResponse string
+
+	if categoryName != "" {
+		prompt = fmt.Sprintf("%s in context of: %s", question, categoryName)
+	}
+
+	if verbose {
+		responseType = "verbose"
+	} else if short {
+		responseType = "short"
+	} else {
+		responseType = "default"
+	}
+
+	done := make(chan bool)
+	go showLoading(done)
+
+	geminiResponse = api.GetResponse(prompt, responseType)
+	done <- true
+
+	formattedResult := FormatMarkdown(geminiResponse)
+
+	responseHeader := GenerateHeader(formatBold("J O T"), true)
+	fmt.Println("\n" + responseHeader + "\n")
+
+	PrintFinalResponse(formattedResult)
+
 }
 
 // ------------- AddTerm -------------
@@ -164,32 +203,6 @@ func GetTermsWithName(termName string) []models.Term {
 }
 
 // ------------- GetUniqueCategories -------------
-// func GetUniqueCategories(showDone bool) []string {
-//     fmt.Println("GetUniqueCategories called with showDone:", showDone)
-//
-//     // for _, term := range terms {
-//     //     if term.Active != showDone {
-//     //         fmt.Println(term.Name, term.Active)
-//     //     }
-//     // }
-//
-// 	uniqueCategories := make(map[string]struct{})
-// 	for _, term := range terms {
-// 		if term.Active { // Only consider terms specified by showDone
-// 			lowerCaseCategory := strings.ToLower(term.Category)
-// 			if _, exists := uniqueCategories[lowerCaseCategory]; !exists {
-// 				uniqueCategories[lowerCaseCategory] = struct{}{}
-// 			}
-// 		}
-// 	}
-//
-// 	categories := make([]string, 0, len(uniqueCategories))
-// 	for category := range uniqueCategories {
-// 		categories = append(categories, category)
-// 	}
-//
-// 	return categories
-// }
 func GetUniqueCategories(showDone bool) []string {
 	uniqueCategories := make(map[string]struct{})
 	for _, term := range terms {
@@ -206,12 +219,8 @@ func GetUniqueCategories(showDone bool) []string {
 		categories = append(categories, category)
 	}
 
-    for _, category := range categories {
-        fmt.Println(category)
-    }
 	return categories
 }
-
 
 // ------------- GetSortedByCategory -------------
 func GetSortedByCategory() []models.Term {
@@ -230,38 +239,35 @@ func GetSortedByCategory() []models.Term {
 // ------------- ListCategoryTerms -------------
 func ListCategoryTerms(categoryName string, showDone bool, color int) {
 
-    categoryTerms := GetTermsInCategory(categoryName, showDone)
-    formattedHeader := GenerateHeader(TextColor(formatBold(strings.ToUpper(categoryName)), color), false)
-    headerPrinted := false
-    
-    for _, term := range categoryTerms {
-        if term.Active == showDone {
-            continue
-        }
-        // fmt.Println("term:", term.Name, "active:", term.Active, "showDone:", showDone)
-        if !headerPrinted {
-            fmt.Println(formattedHeader)
-            fmt.Println()
-            headerPrinted = true
-        }
-        termFormatted := fmt.Sprintf("  * %s: %s\n", formatBold(term.Name), formatItalic(formatFaint(term.Definition)))
-        fmt.Println(termFormatted)
-    }
+	categoryTerms := GetTermsInCategory(categoryName, showDone)
+	formattedHeader := GenerateHeader(TextColor(formatBold(strings.ToUpper(categoryName)), color), false)
+	headerPrinted := false
+
+	for _, term := range categoryTerms {
+		if term.Active == showDone {
+			continue
+		}
+
+		if !headerPrinted {
+			fmt.Printf("\n%s\n", formattedHeader)
+			headerPrinted = true
+		}
+		termFormatted := fmt.Sprintf("%s\t* %s: %s\n", marginString, formatBold(term.Name), formatItalic(formatFaint(term.Definition)))
+		fmt.Println(termFormatted)
+	}
 
 }
-
 
 // ------------- ListAllTerms -------------
 func ListAllTerms(showDone bool) {
-    // for each category, call ListCategoryTerms 
-    uniqueCategories := GetUniqueCategories(showDone)
-    for idx, category := range uniqueCategories {
-        color := (idx * (256 / len(uniqueCategories))) + 1
-        ListCategoryTerms(category, showDone, color)
-    }
+	// for each category, call ListCategoryTerms
+	uniqueCategories := GetUniqueCategories(showDone)
+	for idx, category := range uniqueCategories {
+		color := (idx * (256 / len(uniqueCategories))) + 1
+		ListCategoryTerms(category, showDone, color)
+	}
 
 }
-
 
 // ------------- ListAllCategories -------------
 func ListAllCategories() {

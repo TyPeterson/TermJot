@@ -6,6 +6,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+    "time"
 
     "github.com/nexidian/gocliselect"
 	// "github.com/alecthomas/chroma/lexers"
@@ -109,21 +110,12 @@ func extractCodeBlocks(text string) string {
 	for _, match := range submatches {
 		codeBlockWithLang := text[match[2]:match[3]] + text[match[4]:match[5]]
 		lines := strings.Split(codeBlockWithLang, "\n")
+
 		if len(lines) < 2 {
 			continue
 		}
+
 		lang := lines[0]
-        // add tab to each line within code block
-        // for i, line := range lines {
-            // lines[i] = "    " + line
-
-            // indent := int(float64(WIDTH) * 0.25)
-            // indentSpaces := strings.Repeat(" ", indent)
-            // lines[i] = indentSpaces + line
-
-        // }
-
-		// codeBlock := strings.Join(lines[1:], "\n")
         codeBlock := strings.Join(lines, "\n")
         // reasign first item in codeBlock to be an empty string
         codeBlock = strings.Replace(codeBlock, lang, "", 1)
@@ -147,4 +139,40 @@ func extractCodeBlocks(text string) string {
 	return result.String()
 }
 
+
+
+// ------------- showLoading -------------
+func showLoading(done chan bool) {
+	animation := []string{"⣾", "⣷", "⣯", "⣟", "⡿", "⢿", "⣻", "⣽"}
+
+	i := 0
+
+	// hide cursor
+	fmt.Print("\033[?25l")
+
+	defer fmt.Print("\033[?25h") // reshow cursor after function returns
+
+	for {
+		select {
+		case <-done:
+			fmt.Print("\033[K")
+			return
+		default:
+			fmt.Printf("%s %s", TextColor(animation[i%len(animation)], 201), "Loading...\r")
+			i++
+			time.Sleep(100 * time.Millisecond)
+		}
+	}
+}
+
+// ------------- PrintFinalResponse -------------
+func PrintFinalResponse(response string) {
+    lines := strings.Split(response, NL)
+    for _, line := range lines {
+        fmt.Println(line)
+        time.Sleep(50 * time.Millisecond)
+    }
+
+    fmt.Print("\n\n")
+}
 
