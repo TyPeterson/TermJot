@@ -3,9 +3,6 @@ package core
 import (
 	"fmt"
 	"strings"
-	// "time"
-	// "sync"
-
 	"github.com/TyPeterson/TermJot/internal/api"
 	"github.com/TyPeterson/TermJot/models"
 	"github.com/spf13/cobra"
@@ -19,14 +16,12 @@ func HandleAdd(termName, categoryName string) {
 		termName = promptForInput("Term: ")
 	}
 
-	if categoryName == "" && promptForConfirmation("Add to a category? (y/n): ") {
-		categoryName = promptForInput("Category: ")
+	if categoryName == "" {
+        categoryName = promptForInput(fmt.Sprintf("%s %s", formatBold("Category"), formatFaint(formatItalic("[Press Enter to skip]: "))))
 	}
 
 	var definition string
-	if promptForConfirmation("Add a definition? (y/n): ") {
-		definition = promptForInput("Definition: ")
-	}
+definition = promptForInput(fmt.Sprintf("%s %s", formatBold("Definition"), formatFaint(formatItalic("[Press Enter to skip]: "))))
 
 	AddTerm(termName, categoryName, definition)
 }
@@ -42,7 +37,7 @@ func HandleDefine(termName, categoryName string) {
 		termName = selectTerm(categoryName)
 	}
 
-	SetDefinition(termName, categoryName, promptForInput("Definition: "))
+	SetDefinition(termName, categoryName, promptForInput(formatBold("Definition: ")))
 }
 
 // ------------- HandleAdd -------------
@@ -222,19 +217,6 @@ func GetUniqueCategories(showDone bool) []string {
 	return categories
 }
 
-// ------------- GetSortedByCategory -------------
-func GetSortedByCategory() []models.Term {
-
-	uniqueCategories := GetUniqueCategories(false) // get all unique categories
-	sortedTerms := make([]models.Term, 0, len(terms))
-
-	for _, category := range uniqueCategories {
-		categoryTerms := GetTermsInCategory(category, false)
-		sortedTerms = append(sortedTerms, categoryTerms...)
-	}
-
-	return sortedTerms
-}
 
 // ------------- ListCategoryTerms -------------
 func ListCategoryTerms(categoryName string, showDone bool, color int) {

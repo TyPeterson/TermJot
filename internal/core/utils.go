@@ -10,8 +10,6 @@ import (
 
     "github.com/nexidian/gocliselect"
 	// "github.com/alecthomas/chroma/lexers"
-	// "github.com/TyPeterson/TermJot/models"
-    // tm "github.com/buger/goterm"
     "golang.org/x/term"
 )
 

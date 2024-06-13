@@ -6,7 +6,6 @@ var (
 	done       bool
 	categories bool
 	define     bool
-	// example    bool
     verbose    bool
     short      bool
 )
@@ -24,8 +23,6 @@ func InitFlags() {
     doneCmd.Flags().StringVarP(&termName, "termName", "t", "", "Specify the term to mark as done")
 
 	askCmd.Flags().StringVarP(&category, "category", "c", "", "Specify a category to explain the term in")
-	// askCmd.Flags().BoolVarP(&define, "define", "d", false, "Provide a definition for the term")
-	// askCmd.Flags().BoolVarP(&example, "example", "e", false, "Provide an example for the term")
     askCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "Provide a verbose explanation for the term")
     askCmd.Flags().BoolVarP(&short, "short", "s", false, "Provide a short explanation for the term")
 
