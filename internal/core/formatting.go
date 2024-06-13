@@ -1,29 +1,28 @@
 package core
 
-
 import (
-    "fmt"
-    "strings"
-    "regexp"
+	"fmt"
+	"regexp"
+	"strings"
 
-    "golang.org/x/term"
-    "github.com/TyPeterson/TermJot/models"
-    "github.com/alecthomas/chroma/lexers"
+	"github.com/TyPeterson/TermJot/models"
+	"github.com/alecthomas/chroma/lexers"
+	"golang.org/x/term"
 
-    "time"
+	"time"
 )
 
 const NL = "\n"
-var  WIDTH int = setWidth()
+
+var WIDTH int = setWidth()
 
 func setWidth() int {
-    width, _, err := term.GetSize(0)
-    if err != nil {
-        return 80
-    }
-    return width
+	width, _, err := term.GetSize(0)
+	if err != nil {
+		return 80
+	}
+	return width
 }
-
 
 // ------------- TextColor -------------
 func TextColor(text string, color int) string {
@@ -40,7 +39,6 @@ func BackgroundColorRBG(text string, r, g, b int) string {
 	return fmt.Sprintf("\x1b[48;2;%d;%d;%dm%s\x1b[0m", r, g, b, text)
 }
 
-
 // ------------- replaceTabs -------------
 func replaceTabs(text string, tabSize int) string {
 	return strings.ReplaceAll(text, "\t", strings.Repeat(" ", tabSize))
@@ -48,9 +46,8 @@ func replaceTabs(text string, tabSize int) string {
 
 // ------------- LineBreak -------------
 func LineBreak(char rune) string {
-    return strings.Repeat(string(char), WIDTH)
+	return strings.Repeat(string(char), WIDTH)
 }
-
 
 // ------------- ColorBlockTokens -------------
 func ColorBlockTokens(text, lang string) string {
@@ -64,7 +61,6 @@ func ColorBlockTokens(text, lang string) string {
 		return ""
 	}
 
-
 	for _, token := range it.Tokens() {
 
 		color := models.TokenColors[token.Type]
@@ -72,20 +68,22 @@ func ColorBlockTokens(text, lang string) string {
 		finalColoredBlock += coloredToken
 	}
 
-
-    return finalColoredBlock
-    // return BackgroundColor(finalColoredBlock, 235) + NL + LineBreak(' ')
+	return finalColoredBlock
+	// return BackgroundColor(finalColoredBlock, 235) + NL + LineBreak(' ')
 }
 
-
 // ----------------- generateHeader() -----------------
-func GenerateHeader(headerText string) string {
-
-	// box width is len(headerText) + 2*headerPadding
+func GenerateHeader(headerText string, centered bool) string {
+    var leftPadding int
 	headerPadding := 10
-	boxWidth := len(headerText) + (2 * headerPadding)
+    lenHeaderText := len(stripAnsiCodes(headerText))
+	boxWidth := lenHeaderText + (2 * headerPadding)
 
-	leftPadding := (WIDTH - (boxWidth + 2)) / 2
+	if centered {
+		leftPadding = (WIDTH - (boxWidth + 2)) / 2
+	} else {
+        leftPadding = 2
+    }
 
 	topBorder := strings.Repeat(" ", leftPadding) + "┌" + strings.Repeat("─", boxWidth) + "┐"
 	centerText := strings.Repeat(" ", leftPadding) + "│" + strings.Repeat(" ", headerPadding) + headerText + strings.Repeat(" ", headerPadding) + "│"
@@ -93,10 +91,8 @@ func GenerateHeader(headerText string) string {
 
 	finalHeader := "\n" + topBorder + "\n" + centerText + "\n" + botBorder
 
-    return finalHeader
+	return finalHeader
 }
-
-
 
 // ------------- formatMarkdown -------------
 func FormatMarkdown(text string) string {
@@ -111,37 +107,36 @@ func FormatMarkdown(text string) string {
 // ------------- formatBold -------------
 func formatBold(text string) string {
 	// re := regexp.MustCompile(`\*\*(.*?)\*\*`)
-    return fmt.Sprintf("\x1b[1m%s\x1b[22m", text)
+	return fmt.Sprintf("\x1b[1m%s\x1b[22m", text)
 }
 
 // ------------- formatFaint -------------
 func formatFaint(text string) string {
-    return fmt.Sprintf("\x1b[2m%s\x1b[22m", text)
+	return fmt.Sprintf("\x1b[2m%s\x1b[22m", text)
 }
 
 // ------------- formatItalic -------------
 func formatItalic(text string) string {
 	// re := regexp.MustCompile(`\*(.*?)\*`)
-    return fmt.Sprintf("\x1b[3m%s\x1b[23m", text)
+	return fmt.Sprintf("\x1b[3m%s\x1b[23m", text)
 }
 
 // ------------- formatUnderline -------------
 func formatUnderline(text string) string {
-    // re := regexp.MustCompile(`__(.*?)__`)
-    return fmt.Sprintf("\x1b[4m%s\x1b[24m", text)
+	// re := regexp.MustCompile(`__(.*?)__`)
+	return fmt.Sprintf("\x1b[4m%s\x1b[24m", text)
 }
 
 // ------------- formatInverted -------------
 func formatInverted(text string) string {
 	// re := regexp.MustCompile("`([^`]*)`")
-    return fmt.Sprintf("\x1b[7m%s\x1b[27m", text)
+	return fmt.Sprintf("\x1b[7m%s\x1b[27m", text)
 }
-
 
 // ------------- formatWithMargins -------------
 func formatWithMargins(text string, margin int) {
 
-    text = strings.TrimLeft(text, "\n")
+	text = strings.TrimLeft(text, "\n")
 	leftMargin := strings.Repeat(" ", margin)
 
 	currentLineCount := 0
@@ -150,7 +145,7 @@ func formatWithMargins(text string, margin int) {
 	fmt.Printf(leftMargin)
 
 	for _, word := range words {
-		if currentLineCount + len(word) > (WIDTH - (margin*2)) {
+		if currentLineCount+len(word) > (WIDTH - (margin * 2)) {
 			fmt.Printf("%s%s", NL, leftMargin)
 			currentLineCount = 0
 		}
@@ -159,7 +154,6 @@ func formatWithMargins(text string, margin int) {
 	}
 
 }
-
 
 // ------------- stripAnsiCodes -------------
 func stripAnsiCodes(input string) string {
@@ -171,25 +165,22 @@ func stripAnsiCodes(input string) string {
 func padLine(text string) string {
 	width, _, _ := term.GetSize(0)
 	padding := int(float64(width) * 0.25)
-    textLen := len(stripAnsiCodes(text))
+	textLen := len(stripAnsiCodes(text))
 
 	coloredPadding := BackgroundColor(strings.Repeat(" ", padding), 0)
 
-	textRightPadding := (width - textLen) - (padding*2)
-    coloredText := BackgroundColor(text+strings.Repeat(" " , textRightPadding), 235)
+	textRightPadding := (width - textLen) - (padding * 2)
+	coloredText := BackgroundColor(text+strings.Repeat(" ", textRightPadding), 235)
 
 	return coloredPadding + coloredText + coloredPadding
 }
 
-
 // ------------- printCodeBlock -------------
 func PrintCodeBlock(text string) {
 
-    for _, line := range strings.Split(text, NL) {
-        fmt.Println(padLine("    " + line))
-        time.Sleep(10 * time.Millisecond)
-    }
+	for _, line := range strings.Split(text, NL) {
+		fmt.Println(padLine("    " + line))
+		time.Sleep(10 * time.Millisecond)
+	}
 
 }
-
-

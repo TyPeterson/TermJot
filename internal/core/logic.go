@@ -167,9 +167,11 @@ func GetTermsWithName(termName string) []models.Term {
 func GetUniqueCategories() []string {
 	uniqueCategories := make(map[string]struct{})
 	for _, term := range terms {
-		lowerCaseCategory := strings.ToLower(term.Category)
-		if _, exists := uniqueCategories[lowerCaseCategory]; !exists {
-			uniqueCategories[lowerCaseCategory] = struct{}{}
+		if term.Active { // Only consider active terms
+			lowerCaseCategory := strings.ToLower(term.Category)
+			if _, exists := uniqueCategories[lowerCaseCategory]; !exists {
+				uniqueCategories[lowerCaseCategory] = struct{}{}
+			}
 		}
 	}
 
@@ -180,6 +182,27 @@ func GetUniqueCategories() []string {
 
 	return categories
 }
+
+
+
+
+
+// func GetUniqueCategories() []string {
+// 	uniqueCategories := make(map[string]struct{})
+// 	for _, term := range terms {
+// 		lowerCaseCategory := strings.ToLower(term.Category)
+// 		if _, exists := uniqueCategories[lowerCaseCategory]; !exists {
+// 			uniqueCategories[lowerCaseCategory] = struct{}{}
+// 		}
+// 	}
+//
+// 	categories := make([]string, 0, len(uniqueCategories))
+// 	for category := range uniqueCategories {
+// 		categories = append(categories, category)
+// 	}
+//
+// 	return categories
+// }
 
 // ------------- GetSortedByCategory -------------
 func GetSortedByCategory() []models.Term {
@@ -197,11 +220,11 @@ func GetSortedByCategory() []models.Term {
 
 // ------------- ListCategoryTerms -------------
 func ListCategoryTerms(categoryName string, showDone bool, showDoneAndActive bool, color int) {
-    // get all terms in a category and print them out
+
     categoryTerms := GetTermsInCategory(categoryName)
-    formattedHeader := fmt.Sprintf("\n    %s%s%s\n", TextColor("[", 15), TextColor(categoryName, color), TextColor("]", 15))
+    // formattedHeader := fmt.Sprintf("\n    %s%s%s\n", TextColor("[", 15), TextColor(formatBold(strings.ToUpper(categoryName)), color), TextColor("]", 15))
+    formattedHeader := GenerateHeader(TextColor(formatBold(strings.ToUpper(categoryName)), color), false)
     headerPrinted := false
-    // fmt.Println(formattedHeader)
     
     // if showDone, only show terms where term.Active == false, but if showDoneAndActive, show all terms, but if neither, only show terms where term.Active == true
     for _, term := range categoryTerms {
@@ -213,15 +236,12 @@ func ListCategoryTerms(categoryName string, showDone bool, showDoneAndActive boo
         }
         if !headerPrinted {
             fmt.Println(formattedHeader)
+            fmt.Println()
             headerPrinted = true
         }
         termFormatted := fmt.Sprintf("  * %s: %s\n", formatBold(term.Name), formatItalic(formatFaint(term.Definition)))
         fmt.Println(termFormatted)
     }
-
-
-
-    fmt.Println()
 
 }
 
