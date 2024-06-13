@@ -8,12 +8,12 @@ import (
 )
 
 var listCmd = &cobra.Command{
-	Use:   "list [[-d] [-c category]] | [-g]",
+	Use:   "list [[-d] [category]] | [-g]",
 	Short: "List terms or categories",
 	Run: func(cmd *cobra.Command, args []string) {
 		// check if the -g flag is used with any other flag
-		if categories && (done || category != "") {
-			fmt.Println("Error: The -g flag cannot be used with any other flag.")
+		if categories && (done || len(args) > 0) {
+			fmt.Println("Error: The -g flag must be used alone")
 			return
 		}
 
@@ -21,7 +21,8 @@ var listCmd = &cobra.Command{
 		if categories {
             core.ListAllCategories()
 		} else {
-            if category != "" {
+            if len(args) > 0 {
+                category := args[0]
                 core.ListCategoryTerms(category, done, 111)
             } else {
                 core.ListAllTerms(done)

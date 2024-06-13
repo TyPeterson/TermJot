@@ -26,7 +26,7 @@ func InitFlags() {
     askCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "Provide a verbose explanation for the term")
     askCmd.Flags().BoolVarP(&short, "short", "s", false, "Provide a short explanation for the term")
 
-	listCmd.Flags().StringVarP(&category, "category", "c", "", "Specify a category to list terms")
+	// listCmd.Flags().StringVarP(&category, "category", "c", "", "Specify a category to list terms")
 	listCmd.Flags().BoolVarP(&done, "done", "d", false, "List only 'done' terms")
 	listCmd.Flags().BoolVarP(&categories, "categories", "g", false, "List all unique categories")
 

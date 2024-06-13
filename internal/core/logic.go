@@ -17,11 +17,11 @@ func HandleAdd(termName, categoryName string) {
 	}
 
 	if categoryName == "" {
-        categoryName = promptForInput(fmt.Sprintf("%s %s", formatBold("Category"), formatFaint(formatItalic("[Press Enter to skip]: "))))
+        categoryName = promptForInput(fmt.Sprintf("%s %s", formatBold("Category"), formatFaint(formatItalic("[Enter to skip]: "))))
 	}
 
 	var definition string
-definition = promptForInput(fmt.Sprintf("%s %s", formatBold("Definition"), formatFaint(formatItalic("[Press Enter to skip]: "))))
+definition = promptForInput(fmt.Sprintf("%s %s", formatBold("Definition"), formatFaint(formatItalic("[Enter to skip]: "))))
 
 	AddTerm(termName, categoryName, definition)
 }
