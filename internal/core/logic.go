@@ -164,10 +164,36 @@ func GetTermsWithName(termName string) []models.Term {
 }
 
 // ------------- GetUniqueCategories -------------
-func GetUniqueCategories() []string {
+// func GetUniqueCategories(showDone bool) []string {
+//     fmt.Println("GetUniqueCategories called with showDone:", showDone)
+//
+//     // for _, term := range terms {
+//     //     if term.Active != showDone {
+//     //         fmt.Println(term.Name, term.Active)
+//     //     }
+//     // }
+//
+// 	uniqueCategories := make(map[string]struct{})
+// 	for _, term := range terms {
+// 		if term.Active { // Only consider terms specified by showDone
+// 			lowerCaseCategory := strings.ToLower(term.Category)
+// 			if _, exists := uniqueCategories[lowerCaseCategory]; !exists {
+// 				uniqueCategories[lowerCaseCategory] = struct{}{}
+// 			}
+// 		}
+// 	}
+//
+// 	categories := make([]string, 0, len(uniqueCategories))
+// 	for category := range uniqueCategories {
+// 		categories = append(categories, category)
+// 	}
+//
+// 	return categories
+// }
+func GetUniqueCategories(showDone bool) []string {
 	uniqueCategories := make(map[string]struct{})
 	for _, term := range terms {
-		if term.Active { // Only consider active terms
+		if term.Active != showDone { // Consider terms based on the opposite of showDone
 			lowerCaseCategory := strings.ToLower(term.Category)
 			if _, exists := uniqueCategories[lowerCaseCategory]; !exists {
 				uniqueCategories[lowerCaseCategory] = struct{}{}
@@ -180,34 +206,17 @@ func GetUniqueCategories() []string {
 		categories = append(categories, category)
 	}
 
+    for _, category := range categories {
+        fmt.Println(category)
+    }
 	return categories
 }
 
 
-
-
-
-// func GetUniqueCategories() []string {
-// 	uniqueCategories := make(map[string]struct{})
-// 	for _, term := range terms {
-// 		lowerCaseCategory := strings.ToLower(term.Category)
-// 		if _, exists := uniqueCategories[lowerCaseCategory]; !exists {
-// 			uniqueCategories[lowerCaseCategory] = struct{}{}
-// 		}
-// 	}
-//
-// 	categories := make([]string, 0, len(uniqueCategories))
-// 	for category := range uniqueCategories {
-// 		categories = append(categories, category)
-// 	}
-//
-// 	return categories
-// }
-
 // ------------- GetSortedByCategory -------------
 func GetSortedByCategory() []models.Term {
 
-	uniqueCategories := GetUniqueCategories() // get all unique categories
+	uniqueCategories := GetUniqueCategories(false) // get all unique categories
 	sortedTerms := make([]models.Term, 0, len(terms))
 
 	for _, category := range uniqueCategories {
@@ -219,21 +228,17 @@ func GetSortedByCategory() []models.Term {
 }
 
 // ------------- ListCategoryTerms -------------
-func ListCategoryTerms(categoryName string, showDone bool, showDoneAndActive bool, color int) {
+func ListCategoryTerms(categoryName string, showDone bool, color int) {
 
     categoryTerms := GetTermsInCategory(categoryName)
-    // formattedHeader := fmt.Sprintf("\n    %s%s%s\n", TextColor("[", 15), TextColor(formatBold(strings.ToUpper(categoryName)), color), TextColor("]", 15))
     formattedHeader := GenerateHeader(TextColor(formatBold(strings.ToUpper(categoryName)), color), false)
     headerPrinted := false
     
-    // if showDone, only show terms where term.Active == false, but if showDoneAndActive, show all terms, but if neither, only show terms where term.Active == true
     for _, term := range categoryTerms {
-        if showDone && term.Active {
+        if term.Active == showDone {
             continue
         }
-        if !showDoneAndActive && !showDone && !term.Active {
-            continue
-        }
+        // fmt.Println("term:", term.Name, "active:", term.Active, "showDone:", showDone)
         if !headerPrinted {
             fmt.Println(formattedHeader)
             fmt.Println()
@@ -247,12 +252,12 @@ func ListCategoryTerms(categoryName string, showDone bool, showDoneAndActive boo
 
 
 // ------------- ListAllTerms -------------
-func ListAllTerms(showDone, showDoneAndActive bool) {
+func ListAllTerms(showDone bool) {
     // for each category, call ListCategoryTerms 
-    uniqueCategories := GetUniqueCategories()
+    uniqueCategories := GetUniqueCategories(showDone)
     for idx, category := range uniqueCategories {
         color := (idx * (256 / len(uniqueCategories))) + 1
-        ListCategoryTerms(category, showDone, showDoneAndActive, color)
+        ListCategoryTerms(category, showDone, color)
     }
 
 }
@@ -261,7 +266,7 @@ func ListAllTerms(showDone, showDoneAndActive bool) {
 // ------------- ListAllCategories -------------
 func ListAllCategories() {
 	// get all unique categories and print them out
-	uniqueCategories := GetUniqueCategories()
+	uniqueCategories := GetUniqueCategories(false)
 
 	fmt.Printf("\n    %s\n\n", formatUnderline(formatBold("Categories:")))
 

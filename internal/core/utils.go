@@ -33,7 +33,7 @@ func promptForConfirmation(label string) bool {
 // ------------- selectCategory -------------
 func selectCategory() string {
     menu := gocliselect.NewMenu("Select a category")
-    uniqueCategories := GetUniqueCategories()
+    uniqueCategories := GetUniqueCategories(false)
     for idx, category := range uniqueCategories {
         var categoryFormatted string
         if category == "" {

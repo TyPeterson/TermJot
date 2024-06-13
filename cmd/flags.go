@@ -4,7 +4,6 @@ var (
     termName   string
 	category   string
 	done       bool
-	all        bool
 	categories bool
 	define     bool
 	example    bool
@@ -28,7 +27,6 @@ func InitFlags() {
 
 	listCmd.Flags().StringVarP(&category, "category", "c", "", "Specify a category to list terms")
 	listCmd.Flags().BoolVarP(&done, "done", "d", false, "List only 'done' terms")
-	listCmd.Flags().BoolVarP(&all, "all", "a", false, "List both 'active' and 'done' terms")
 	listCmd.Flags().BoolVarP(&categories, "categories", "g", false, "List all unique categories")
 
 
