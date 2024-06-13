@@ -176,7 +176,7 @@ func padLine(text string) string {
 	coloredPadding := BackgroundColor(strings.Repeat(" ", padding), 0)
 
 	textRightPadding := (width - textLen) - (padding*2)
-	coloredText := BackgroundColor(text+strings.Repeat(" " , textRightPadding), 235)
+    coloredText := BackgroundColor(text+strings.Repeat(" " , textRightPadding), 235)
 
 	return coloredPadding + coloredText + coloredPadding
 }
@@ -187,7 +187,7 @@ func PrintCodeBlock(text string) {
 
     for _, line := range strings.Split(text, NL) {
         fmt.Println(padLine("    " + line))
-        time.Sleep(100 * time.Millisecond)
+        time.Sleep(10 * time.Millisecond)
     }
 
 }

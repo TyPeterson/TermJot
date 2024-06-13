@@ -9,7 +9,7 @@ import (
 
     "github.com/nexidian/gocliselect"
 	// "github.com/alecthomas/chroma/lexers"
-	"github.com/TyPeterson/TermJot/models"
+	// "github.com/TyPeterson/TermJot/models"
     // tm "github.com/buger/goterm"
     "golang.org/x/term"
 )
@@ -30,30 +30,37 @@ func promptForConfirmation(label string) bool {
 	return strings.ToLower(strings.TrimSpace(input)) == "y"
 }
 
-
-// ------------- selectTerm -------------
-func selectTerm(termOptions []models.Term) (string, string) {
-    menu := gocliselect.NewMenu("Select a term")
+// ------------- selectCategory -------------
+func selectCategory() string {
+    menu := gocliselect.NewMenu("Select a category")
     uniqueCategories := GetUniqueCategories()
-    numCategories := len(uniqueCategories)
-
-    for _, term := range termOptions {
+    for idx, category := range uniqueCategories {
         var categoryFormatted string
-        if term.Category == "" {
+        if category == "" {
             categoryFormatted = TextColor("[   ]", 15)
         } else {
-            categoryIndex := indexOfString(uniqueCategories, term.Category)   // ensure colors are unique, evenly spaced, and range from 1-255
-            color := (categoryIndex * (256/numCategories)) + 1
-            categoryFormatted = fmt.Sprintf("%s%s%s", TextColor("[", 15), TextColor(term.Category, color), TextColor("]", 15))
+            color := (idx * (256/len(uniqueCategories))) + 1
+            categoryFormatted = fmt.Sprintf("%s%s%s", TextColor("[", 15), TextColor(category, color), TextColor("]", 15))
         }
-        menu.AddItem(fmt.Sprintf("%s\t\t%s", categoryFormatted, term.Name), fmt.Sprintf("%s-%s", term.Name, term.Category))
+        menu.AddItem(categoryFormatted, category)
     }
 
-    selected := menu.Display()
-    selectedParts := strings.Split(selected, "-")
-
-    return selectedParts[0], selectedParts[1]
+    return menu.Display()
 }
+
+
+// ------------- selectTerm -------------
+func selectTerm(categoryName string) string {
+    menu := gocliselect.NewMenu("Select a term")
+    termOptions := GetTermsInCategory(categoryName)
+
+    for _, term := range termOptions {
+        menu.AddItem(fmt.Sprintf("  * %s", term.Name), term.Name)
+    }
+
+    return menu.Display()
+}
+
 
 
 // ------------- indexOfString -------------

@@ -2,42 +2,39 @@ package cmd
 
 import (
 	"fmt"
-	"strings"
-	"time"
-    "sync"
-    "golang.org/x/term"
 	"github.com/TyPeterson/TermJot/internal/api"
 	"github.com/TyPeterson/TermJot/internal/core"
 	"github.com/spf13/cobra"
+	"golang.org/x/term"
+	"strings"
+	"sync"
+	"time"
 )
 
 const NL = "\n"
 
-
 // ------------- showLoading -------------
 func showLoading(done chan bool) {
-    animation := []string{"⣾", "⣷", "⣯", "⣟", "⡿", "⢿", "⣻", "⣽"}
+	animation := []string{"⣾", "⣷", "⣯", "⣟", "⡿", "⢿", "⣻", "⣽"}
 
-    i := 0
+	i := 0
 
-    // hide cursor
-    fmt.Print("\033[?25l")
+	// hide cursor
+	fmt.Print("\033[?25l")
 
+	defer fmt.Print("\033[?25h") // reshow cursor after function returns
 
-
-    defer fmt.Print("\033[?25h") // reshow cursor after function returns
-
-    for {
-        select {
-        case <-done:
-            fmt.Print("\033[K")
-            return
-        default:
-            fmt.Printf("\r%s%s%s %s\t\t\t\t\t", "\033[38;5;201m", animation[i%len(animation)], "\033[0m", "Loading...")
-            i++
-            time.Sleep(100 * time.Millisecond)
-    }
-    }
+	for {
+		select {
+		case <-done:
+			fmt.Print("\033[K")
+			return
+		default:
+			fmt.Printf("\r%s%s%s %s\t\t\t\t\t", "\033[38;5;201m", animation[i%len(animation)], "\033[0m", "Loading...")
+			i++
+			time.Sleep(100 * time.Millisecond)
+		}
+	}
 }
 
 // ------------- printWithMargins -------------
@@ -47,10 +44,10 @@ func printWithMargins(text string, margin int) {
 		panic(err)
 	}
 
-    // just manually set margin to 25% of the width
-    margin = int(float64(width) * 0.25)
+	// just manually set margin to 25% of the width
+	margin = int(float64(width) * 0.25)
 
-    text = strings.TrimLeft(text, "\n")
+	text = strings.TrimLeft(text, "\n")
 	leftMargin := strings.Repeat(" ", margin)
 
 	currentLineCount := 0
@@ -59,7 +56,7 @@ func printWithMargins(text string, margin int) {
 	fmt.Printf(leftMargin)
 
 	for _, word := range words {
-		if currentLineCount + len(word) > (width - (margin*2)) {
+		if currentLineCount+len(word) > (width - (margin * 2)) {
 			fmt.Printf("%s%s", NL, leftMargin)
 			currentLineCount = 0
 		}
@@ -112,55 +109,51 @@ var askCmd = &cobra.Command{
 
 		api.InitializeGeminiClient()
 
-        done := make(chan bool)
-        var wg sync.WaitGroup
+		done := make(chan bool)
+		var wg sync.WaitGroup
 
-        definitionResult := make(chan string)
-        exampleResult := make(chan string)
+		definitionResult := make(chan string)
+		exampleResult := make(chan string)
 
-        // start showing loading animation
-        go showLoading(done)
+		// start showing loading animation
+		go showLoading(done)
 
-        // start first goroutine
-        wg.Add(1)
-        go func() {
-            defer wg.Done()
-            definitionResult <- api.GenerateDefinition(term, category)
-        }()
+		// start first goroutine
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			definitionResult <- api.GenerateDefinition(term, category)
+		}()
 
-        // start second goroutine
-        wg.Add(1)
-        go func() {
-            defer wg.Done()
-            exampleResult <- api.GenerateExample(term, category)
-        }()
+		// start second goroutine
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			exampleResult <- api.GenerateExample(term, category)
+		}()
 
+		// wait for all goroutines to finish
+		go func() {
+			wg.Wait()
+			close(done)
+		}()
 
-        // wait for all goroutines to finish
-        go func() {
-            wg.Wait()
-            close(done)
-        }()
+		r1 := core.FormatMarkdown(<-definitionResult)
+		r2 := core.FormatMarkdown(<-exampleResult)
 
-        r1 := core.FormatMarkdown(<-definitionResult)
-        r2 := core.FormatMarkdown(<-exampleResult)
+		definitionHeader := core.GenerateHeader("Description")
+		exampleHeader := core.GenerateHeader("Example")
 
-        definitionHeader := core.GenerateHeader("Description")
-        exampleHeader := core.GenerateHeader("Example")
+		fmt.Println("\n" + definitionHeader + "\n")
+		printWithMargins(r1, 20)
 
-        fmt.Println("\n" + definitionHeader + "\n")
-        printWithMargins(r1, 20)
+		fmt.Println("\n" + exampleHeader + "\n")
 
-        fmt.Println("\n" + exampleHeader + "\n")
+		core.PrintCodeBlock(r2)
 
+		fmt.Println("\n\n")
 
-        core.PrintCodeBlock(r2)
-
-        fmt.Println("\n\n")
-
-		defer time.Sleep(500 * time.Millisecond) // sleep a little before exiting
+		// defer time.Sleep(500 * time.Millisecond) // sleep a little before exiting
 
 	},
 }
-
-

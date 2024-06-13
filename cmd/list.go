@@ -27,7 +27,7 @@ var listCmd = &cobra.Command{
             core.ListAllCategories()
 		} else {
             if category != "" {
-                core.ListCategoryTerms(category, done, all)
+                core.ListCategoryTerms(category, done, all, 111)
             } else {
                 core.ListAllTerms(done, all)
             }

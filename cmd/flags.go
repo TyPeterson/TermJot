@@ -17,8 +17,10 @@ func InitFlags() {
 
 
 	removeCmd.Flags().StringVarP(&category, "category", "c", "", "Specify a category to remove the term from")
+    removeCmd.Flags().StringVarP(&termName, "termName", "t", "", "Specify the term to remove")
 
 	doneCmd.Flags().StringVarP(&category, "category", "c", "", "Specify a category to mark the term as done in")
+    doneCmd.Flags().StringVarP(&termName, "termName", "t", "", "Specify the term to mark as done")
 
 	askCmd.Flags().StringVarP(&category, "category", "c", "", "Specify a category to explain the term in")
 	askCmd.Flags().BoolVarP(&define, "define", "d", false, "Provide a definition for the term")
