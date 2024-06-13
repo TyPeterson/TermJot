@@ -140,10 +140,10 @@ func GetTerm(termName, categoryName string) models.Term {
 }
 
 // ------------- GetTermsInCategory -------------
-func GetTermsInCategory(categoryName string) []models.Term {
+func GetTermsInCategory(categoryName string, showDone bool) []models.Term {
 	var categoryTerms []models.Term
 	for _, term := range terms {
-		if strings.ToLower(term.Category) == strings.ToLower(categoryName) {
+		if strings.ToLower(term.Category) == strings.ToLower(categoryName) && term.Active != showDone {
 			categoryTerms = append(categoryTerms, term)
 		}
 	}
@@ -220,7 +220,7 @@ func GetSortedByCategory() []models.Term {
 	sortedTerms := make([]models.Term, 0, len(terms))
 
 	for _, category := range uniqueCategories {
-		categoryTerms := GetTermsInCategory(category)
+		categoryTerms := GetTermsInCategory(category, false)
 		sortedTerms = append(sortedTerms, categoryTerms...)
 	}
 
@@ -230,7 +230,7 @@ func GetSortedByCategory() []models.Term {
 // ------------- ListCategoryTerms -------------
 func ListCategoryTerms(categoryName string, showDone bool, color int) {
 
-    categoryTerms := GetTermsInCategory(categoryName)
+    categoryTerms := GetTermsInCategory(categoryName, showDone)
     formattedHeader := GenerateHeader(TextColor(formatBold(strings.ToUpper(categoryName)), color), false)
     headerPrinted := false
     

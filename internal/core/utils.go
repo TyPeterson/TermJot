@@ -52,7 +52,7 @@ func selectCategory() string {
 // ------------- selectTerm -------------
 func selectTerm(categoryName string) string {
     menu := gocliselect.NewMenu("Select a term")
-    termOptions := GetTermsInCategory(categoryName)
+    termOptions := GetTermsInCategory(categoryName, false)
 
     for _, term := range termOptions {
         menu.AddItem(fmt.Sprintf("  * %s", term.Name), term.Name)
