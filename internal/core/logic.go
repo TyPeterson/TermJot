@@ -95,7 +95,7 @@ func HandleAsk(question string, categoryName string, verbose, short bool) {
 
 	formattedResult := formatMarkdown(geminiResponse)
 
-	responseHeader := generateHeader(formatBold("J O T"), true)
+	responseHeader := generateHeader(formatBold("J O T"))
 	fmt.Println("\n" + responseHeader + "\n")
 
 	printFinalResponse(formattedResult)
@@ -198,7 +198,7 @@ func getUniqueCategories(showDone bool) []string {
 func ListCategoryTerms(categoryName string, showDone bool, color int) {
 
 	categoryTerms := getTermsInCategory(categoryName, showDone)
-	formattedHeader := generateHeader(textColor(formatBold(strings.ToUpper(categoryName)), color), false)
+	formattedHeader := generateHeader(textColor(formatBold(strings.ToUpper(categoryName)), color))
 	headerPrinted := false
 
 	for _, term := range categoryTerms {

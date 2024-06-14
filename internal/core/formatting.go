@@ -33,12 +33,6 @@ func backgroundColor(text string, color int) string {
 	return fmt.Sprintf("\x1b[48;5;%dm%s\x1b[0m", color, text)
 }
 
-
-// ------------- replaceTabs -------------
-func replaceTabs(text string, tabSize int) string {
-	return strings.ReplaceAll(text, "\t", strings.Repeat(" ", tabSize))
-}
-
 // ------------- lineBreak -------------
 func lineBreak(char rune) string {
 	return strings.Repeat(string(char), WIDTH)
@@ -68,11 +62,10 @@ func colorBlockTokens(text, lang string) string {
 	}
 
 	return finalColoredBlock
-	// return BackgroundColor(finalColoredBlock, 235) + NL + LineBreak(' ')
 }
 
-// ----------------- generateHeader() -----------------
-func generateHeader(headerText string, centered bool) string {
+// ----------------- generateHeader -----------------
+func generateHeader(headerText string) string {
 	// var margin int
 	var headerPadding int
 	var boxWidth int
@@ -162,7 +155,6 @@ func formatMarkdown(text string) string {
 		return match
 	})
 
-	text = replaceTabs(text, 5)
 	return addMargins(text)
 }
 
@@ -242,9 +234,8 @@ func formatUnderline(text string) string {
 
 // ------------- formatInverted -------------
 func formatInverted(text string) string {
-	// re := regexp.MustCompile("`([^`]*)`")
-	// return fmt.Sprintf("\x1b[7m%s\x1b[27m", text)
-	return fmt.Sprintf("`%s`", formatItalic(formatBold(text)))
+	// return fmt.Sprintf("`%s`", formatItalic(formatBold(text)))
+    return formatItalic(text)
 }
 
 
