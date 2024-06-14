@@ -1,5 +1,3 @@
-cmd/testing.go
-*.exe
 .env
 design.md
 screenshot.png
@@ -7,3 +5,5 @@ example_gemeni_query.go
 examples.txt
 design.drawio
 notes.md
+jot
+
