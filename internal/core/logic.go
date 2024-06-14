@@ -108,14 +108,14 @@ func addTerm(termName, categoryName, definition string) error {
 		definition = "..."
 	}
 	if categoryName == "" {
-		categoryName = "_none_"
+		categoryName = "ALL"
 	}
 
 	term := models.Term{
 		Name:       termName,
 		Definition: definition,
 		Active:     true,
-		Category:   categoryName,
+		Category:   strings.ToUpper(categoryName),
 	}
 	terms = append(terms, term)
 

@@ -25,6 +25,11 @@ func selectCategory() string {
     fmt.Println()
     menu := gocliselect.NewMenu("Select a category")
     uniqueCategories := getUniqueCategories(false)
+
+    if len(uniqueCategories) == 0 {
+        uniqueCategories = append(uniqueCategories, "ALL")
+    }
+
     for idx, category := range uniqueCategories {
         var categoryFormatted string
         if category == "" {
