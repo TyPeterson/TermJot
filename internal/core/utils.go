@@ -9,9 +9,9 @@ import (
     "time"
 
     "github.com/nexidian/gocliselect"
-	// "github.com/alecthomas/chroma/lexers"
     "golang.org/x/term"
 )
+
 
 // ------------- promptForInput -------------
 func promptForInput(label string) string {
@@ -21,16 +21,9 @@ func promptForInput(label string) string {
 	return strings.TrimSpace(input)
 }
 
-// ------------- promptForConfirmation -------------
-func promptForConfirmation(label string) bool {
-	fmt.Print(label)
-	reader := bufio.NewReader(os.Stdin)
-	input, _ := reader.ReadString('\n')
-	return strings.ToLower(strings.TrimSpace(input)) == "y"
-}
-
 // ------------- selectCategory -------------
 func selectCategory() string {
+    fmt.Println()
     menu := gocliselect.NewMenu("Select a category")
     uniqueCategories := GetUniqueCategories(false)
     for idx, category := range uniqueCategories {
@@ -39,43 +32,75 @@ func selectCategory() string {
             categoryFormatted = TextColor("[   ]", 15)
         } else {
             color := (idx * (256/len(uniqueCategories))) + 1
-            categoryFormatted = fmt.Sprintf("%s%s%s", TextColor("[", 15), TextColor(category, color), TextColor("]", 15))
+            categoryFormatted = fmt.Sprintf("%s%s%s", TextColor("[", 15), TextColor(strings.ToUpper(category), color), TextColor("]", 15))
         }
         menu.AddItem(categoryFormatted, category)
     }
 
+    menu.AddItem(formatFaint("cancel"), "cancel selection")
+
     return menu.Display()
 }
 
-
 // ------------- selectTerm -------------
 func selectTerm(categoryName string) string {
+    fmt.Println()
     menu := gocliselect.NewMenu("Select a term")
     termOptions := GetTermsInCategory(categoryName, false)
 
     for _, term := range termOptions {
-        menu.AddItem(fmt.Sprintf("  * %s", term.Name), term.Name)
+        menu.AddItem(formatBold(term.Name), term.Name)
     }
+
+    menu.AddItem(formatFaint("cancel"), "cancel selection")
 
     return menu.Display()
 }
 
+// ------------- FilterCategoryName -------------
+func FilterCategoryName(categoryName string) string {
 
-
-// ------------- indexOfString -------------
-func indexOfString(slice []string, str string) int {
-    for i, s := range slice {
-        if strings.ToLower(s) == strings.ToLower(str) {
-            return i
+    if categoryName == "" {
+        categoryName = selectCategory()
+        if categoryName == "cancel selection" {
+            return ""
         }
     }
 
-    return -1
+    if categoryName == "." {
+        categoryName = GetDirectoryName()
+    }
+
+    return categoryName
 }
 
+// ------------- FilterTermName -------------
+func FilterTermName(termName, categoryName string) string {
+    if termName == "" {
+        termName = selectTerm(categoryName)
+        if termName == "cancel selection" {
+            return ""
+        }
+    }
+
+    return termName
+}
+
+// ------------- GetDirectoryName -------------
+func GetDirectoryName() string {
+    dir, err := os.Getwd()
+    if err != nil {
+        fmt.Println(err)
+        return ""
+    }
+
+    dirSplit := strings.Split(dir, "/")
+    return dirSplit[len(dirSplit)-1]
+}
 
 // ------------- createBoxHeader -------------
 func createBoxHeader(headerText string) string {
+
 	width, _, err := term.GetSize(0)
 	if err != nil {
 		fmt.Println("Error getting terminal size:", err)
@@ -101,46 +126,48 @@ func createBoxHeader(headerText string) string {
 
 // ------------- extractCodeBlocks -------------
 func extractCodeBlocks(text string) string {
-    re := regexp.MustCompile("(?s)```\\s*(\\w+)?(.*?)```")
+	re := regexp.MustCompile("(?s)```\\s*(\\w+)?(.*?)```")
 	submatches := re.FindAllStringSubmatchIndex(text, -1)
 
 	var codeBlocks []string
 	for _, match := range submatches {
-		codeBlockWithLang := text[match[2]:match[3]] + text[match[4]:match[5]]
-		lines := strings.Split(codeBlockWithLang, "\n")
+		// Ensure the match has enough indices
+		if len(match) >= 6 && match[2] >= 0 && match[3] >= 0 && match[4] >= 0 && match[5] >= 0 && match[2] <= match[3] && match[4] <= match[5] {
+			codeBlockWithLang := text[match[2]:match[3]] + text[match[4]:match[5]]
+			lines := strings.Split(codeBlockWithLang, "\n")
 
-		if len(lines) < 2 {
-			continue
+			if len(lines) < 2 {
+				continue
+			}
+
+			lang := lines[0]
+			codeBlock := strings.Join(lines[1:], "\n") // Join from lines[1:] to skip the language identifier
+
+			coloredBlock := ColorBlockTokens(codeBlock, lang)
+			codeBlocks = append(codeBlocks, coloredBlock)
 		}
-
-		lang := lines[0]
-        codeBlock := strings.Join(lines, "\n")
-        // reasign first item in codeBlock to be an empty string
-        codeBlock = strings.Replace(codeBlock, lang, "", 1)
-
-		coloredBlock := ColorBlockTokens(codeBlock, lang)
-		codeBlocks = append(codeBlocks, coloredBlock)
 	}
 
 	var result strings.Builder
 	lastIndex := 0
 
 	for i, match := range submatches {
-		result.WriteString(text[lastIndex:match[0]])
-		if i < len(codeBlocks) {
-			result.WriteString(codeBlocks[i])
+		if len(match) >= 2 && match[0] >= 0 && match[1] >= 0 && match[0] <= match[1] {
+			result.WriteString(text[lastIndex:match[0]])
+			if i < len(codeBlocks) {
+				result.WriteString(codeBlocks[i])
+			}
+			lastIndex = match[1]
 		}
-		lastIndex = match[1]
 	}
 	result.WriteString(text[lastIndex:])
 
 	return result.String()
 }
 
-
-
 // ------------- showLoading -------------
 func showLoading(done chan bool) {
+
 	animation := []string{"⣾", "⣷", "⣯", "⣟", "⡿", "⢿", "⣻", "⣽"}
 
 	i := 0
@@ -168,7 +195,7 @@ func PrintFinalResponse(response string) {
     lines := strings.Split(response, NL)
     for _, line := range lines {
         fmt.Println(line)
-        time.Sleep(50 * time.Millisecond)
+        time.Sleep(35 * time.Millisecond)
     }
 
     fmt.Print("\n\n")

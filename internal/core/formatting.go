@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
-
 	"github.com/TyPeterson/TermJot/models"
 	"github.com/alecthomas/chroma/lexers"
 	"golang.org/x/term"
@@ -54,6 +53,10 @@ func ColorBlockTokens(text, lang string) string {
 	var finalColoredBlock string
 
 	lexer := lexers.Get(lang)
+    if lexer == nil {
+        lexer = lexers.Fallback
+    }
+
 	it, err := lexer.Tokenise(nil, text)
 
 	if err != nil {
@@ -80,15 +83,24 @@ func GenerateHeader(headerText string, centered bool) string {
 
 	headerTextLen := len(stripAnsiCodes(headerText))
 
-    // margin = int(float64(WIDTH) * 0.15)
-    boxWidth = (WIDTH - (2 * margin)) - 2
+    // add 12 to boxWidth, and -6 from left padding, to create an overhang of 6 on each side
+    boxWidth = (WIDTH - (2 * margin)) + 12
+
     headerPadding = (boxWidth - headerTextLen) / 2
+    
+    var offset int
 
-    offset := headerTextLen % 2
+    if WIDTH % 2 == 0 {
+        offset = headerTextLen % 2
+    } else {
+        offset = (headerTextLen + 1) % 2
+    }
 
-    topBorder := marginString + "┌" + strings.Repeat("─", boxWidth) + "┐"
-    centerText := marginString + "│" + strings.Repeat(" ", headerPadding) + headerText + strings.Repeat(" ", headerPadding + offset) + "│"
-    botBorder := marginString + "└" + strings.Repeat("─", boxWidth) + "┘"
+    marginStringShortened := marginString[:len(marginString) - 6]
+
+    topBorder := marginStringShortened + "┌" + strings.Repeat("─", boxWidth) + "┐"
+    centerText := marginStringShortened + "│" + strings.Repeat(" ", headerPadding) + headerText + strings.Repeat(" ", headerPadding + offset) + "│"
+    botBorder := marginStringShortened + "└" + strings.Repeat("─", boxWidth) + "┘"
 
     finalHeader := topBorder + NL + centerText + NL + botBorder + NL
     return finalHeader
@@ -158,43 +170,6 @@ func FormatMarkdown(text string) string {
 	return AddMargins(text)
 }
 
-// ------------- AddMargins -------------
-// func AddMargins(text string) string {
-//
-// 	text = strings.TrimLeft(text, NL)
-//
-// 	lines := strings.Split(text, NL)
-//
-// 	var result []string
-//
-// 	// iterate through each line, and split by words
-// 	for _, line := range lines {
-// 		currentLine := marginString
-// 		currentLineCount := len(marginString)
-//
-// 		words := strings.Split(line, " ")
-// 		for _, word := range words {
-// 			wordLen := len(stripAnsiCodes(word))
-//
-// 			if currentLineCount+wordLen > (WIDTH - margin) {
-// 				result = append(result, currentLine)
-// 				currentLine = marginString + word
-// 				currentLineCount = len(marginString) + wordLen + 1
-// 			} else {
-// 				if currentLineCount > len(marginString) {
-// 					currentLine += " "
-// 					currentLineCount++
-// 				}
-// 				currentLine += word
-// 				currentLineCount += wordLen + 1
-// 			}
-//
-// 		}
-// 		result = append(result, currentLine)
-// 	}
-//
-// 	return strings.Join(result, NL)
-// }
 
 // ------------- AddLineMargin -------------
 func AddLineMargin(line string) string {
@@ -217,7 +192,7 @@ func AddLineMargin(line string) string {
 				currentLineCount++
 			}
 			currentLine += word
-			currentLineCount += wordLen + 1
+			currentLineCount += wordLen
 		}
 	}
 

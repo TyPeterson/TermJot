@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"fmt"
+    "log"
     "os"
 	"github.com/google/generative-ai-go/genai"
 	"google.golang.org/api/option"
@@ -22,7 +23,7 @@ func InitializeGeminiClient() {
     var clientErr error
     client, clientErr = genai.NewClient(ctx, option.WithAPIKey(apiKey))
     if clientErr != nil {
-        fmt.Println("Error initializing client:", clientErr)
+        log.Fatal(clientErr)
     }
 }
 
@@ -38,7 +39,6 @@ func GetResponse(prompt, responseType string) string {
     
     completePromp := fmt.Sprintf("%s\n%s\n%s\n%s\n### PROMPT ###\n%s", promptContext, promptInstructions, promptFormatting, promptExample, prompt)
     
-    // fmt.Println("prompt sent to gemini:\n", completePromp)
     return generateContent(completePromp)
  }
 
@@ -52,10 +52,10 @@ func generateContent(prompt string) string {
     resp, err := model.GenerateContent(ctx, genai.Text(prompt))
 
     if err != nil {
-        fmt.Println("Error generating content:", err)
-        return ""
+        log.Fatal(err)
     }
-
+    
+    // fmt.Println("len(resp.Candidates):", len(resp.Candidates))
     if len(resp.Candidates) > 0 && len(resp.Candidates[0].Content.Parts) > 0 {
         return fmt.Sprintf("\n%s\n", resp.Candidates[0].Content.Parts[0])
     }

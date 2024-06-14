@@ -2,76 +2,77 @@ package core
 
 import (
 	"fmt"
-	"strings"
+    "strings"
 	"github.com/TyPeterson/TermJot/internal/api"
 	"github.com/TyPeterson/TermJot/models"
 	"github.com/spf13/cobra"
 )
 
+
 var terms []models.Term
 
 // ------------- HandleAdd -------------
 func HandleAdd(termName, categoryName string) {
-	if termName == "" {
-		termName = promptForInput("Term: ")
-	}
 
-	if categoryName == "" {
-        categoryName = promptForInput(fmt.Sprintf("%s %s", formatBold("Category"), formatFaint(formatItalic("[Enter to skip]: "))))
-	}
+    if categoryName = FilterCategoryName(categoryName); categoryName == "" { 
+        return
+    }
+    if termName = FilterTermName(termName, categoryName); termName == "" {
+        return
+    }
 
-	var definition string
-definition = promptForInput(fmt.Sprintf("%s %s", formatBold("Definition"), formatFaint(formatItalic("[Enter to skip]: "))))
-
-	AddTerm(termName, categoryName, definition)
+    AddTerm(termName, categoryName, promptForInput(fmt.Sprintf("\n%s %s", TextColor(formatBold("Definition"), 14), formatFaint(formatItalic("[Enter to cancel]: ")))))
+    fmt.Println("Term added successfully")
 }
 
 // ------------- HandleDefine -------------
 func HandleDefine(termName, categoryName string) {
 
-	if categoryName == "" {
-		categoryName = selectCategory()
-	}
+    if categoryName = FilterCategoryName(categoryName); categoryName == "" {
+        return
+    }
+    if termName = FilterTermName(termName, categoryName); termName == "" {
+        return
+    }
 
-	if termName == "" {
-		termName = selectTerm(categoryName)
-	}
-
-	SetDefinition(termName, categoryName, promptForInput(formatBold("Definition: ")))
+    SetDefinition(termName, categoryName, promptForInput(fmt.Sprintf("\n%s %s", TextColor(formatBold("Definition"), 14), formatFaint(formatItalic("[Enter to cancel]: ")))))
+    fmt.Println("Definition update successful")
 }
 
-// ------------- HandleAdd -------------
+// ------------- HandleRemove -------------
 func HandleRemove(termName, categoryName string) {
 
-	if categoryName == "" {
-		categoryName = selectCategory()
-	}
-	if termName == "" {
-		termName = selectTerm(categoryName)
-	}
-	fmt.Println("Removing term:", termName, "from category:", categoryName)
+    if categoryName = FilterCategoryName(categoryName); categoryName == "" {
+        return
+    }
+    if termName = FilterTermName(termName, categoryName); termName == "" {
+        return
+    }
+
 	RemoveTerm(termName, categoryName)
+    fmt.Println("Term removed successfully")
 }
 
 // ------------- HandleDone -------------
 func HandleDone(termName, categoryName string) {
 
-	if categoryName == "" {
-		categoryName = selectCategory()
-	}
-	if termName == "" {
-		termName = selectTerm(categoryName)
-	}
+    if categoryName = FilterCategoryName(categoryName); categoryName == "" {
+        return
+    }
+    if termName = FilterTermName(termName, categoryName); termName == "" {
+        return
+    }
 
 	SetTermDone(termName, categoryName)
+    fmt.Println("Term marked as done")
 }
 
 // ------------- HandleAsk -------------
 func HandleAsk(question string, categoryName string, verbose, short bool) {
 
 	prompt := question
-	var responseType string
 
+	var responseType string
 	var geminiResponse string
 
 	if categoryName != "" {
@@ -98,7 +99,6 @@ func HandleAsk(question string, categoryName string, verbose, short bool) {
 	fmt.Println("\n" + responseHeader + "\n")
 
 	PrintFinalResponse(formattedResult)
-
 }
 
 // ------------- AddTerm -------------
@@ -217,7 +217,6 @@ func GetUniqueCategories(showDone bool) []string {
 	return categories
 }
 
-
 // ------------- ListCategoryTerms -------------
 func ListCategoryTerms(categoryName string, showDone bool, color int) {
 
@@ -234,12 +233,15 @@ func ListCategoryTerms(categoryName string, showDone bool, color int) {
 			fmt.Printf("\n%s\n", formattedHeader)
 			headerPrinted = true
 		}
-        box := "☐" 
-        if showDone {
-            box = "☑"
-        }
-		termFormatted := fmt.Sprintf("   %s   %s: %s\n", box, formatBold(term.Name), formatItalic(formatFaint(term.Definition)))
-		fmt.Println(strings.ReplaceAll(AddLineMargin(termFormatted), fmt.Sprintf("%s%s", NL, marginString), fmt.Sprintf("%s%s%s", NL, marginString, strings.Repeat(" ", 7))))
+		box := "☐"
+		if showDone {
+			box = "☑"
+		}
+
+		termFormatted := fmt.Sprintf("%s  %s: %s\n", box, formatBold(term.Name), formatItalic(formatFaint(term.Definition)))
+
+		termFormattedWithMargins := strings.ReplaceAll(AddLineMargin(termFormatted), fmt.Sprintf("%s%s", NL, marginString), fmt.Sprintf("%s%s   ", NL, marginString))
+		fmt.Println(termFormattedWithMargins)
 	}
 
 }
@@ -265,6 +267,7 @@ func ListAllCategories() {
 	for idx, category := range uniqueCategories {
 		color := (idx * (256 / len(uniqueCategories))) + 1
 		categoryFormatted := fmt.Sprintf(" *  %s%s%s\n", TextColor("[", 15), TextColor(category, color), TextColor("]", 15))
+
 		if category != "" {
 			fmt.Println(categoryFormatted)
 		}
