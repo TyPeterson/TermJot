@@ -7,7 +7,7 @@ var (
 	categories bool
 	define     bool
     verbose    bool
-    short      bool
+    brief      bool
 )
 
 func InitFlags() {
@@ -20,7 +20,7 @@ func InitFlags() {
 
 	askCmd.Flags().StringVarP(&category, "category", "c", "", "Specify a category to explain the term in")
     askCmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "Provide a verbose explanation for the term")
-    askCmd.Flags().BoolVarP(&short, "short", "s", false, "Provide a short explanation for the term")
+    askCmd.Flags().BoolVarP(&brief, "brief", "b", false, "Provide a brief explanation for the term")
 
 	listCmd.Flags().BoolVarP(&done, "done", "d", false, "List only 'done' terms")
 	listCmd.Flags().BoolVarP(&categories, "categories", "g", false, "List all unique categories")
