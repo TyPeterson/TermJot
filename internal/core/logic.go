@@ -196,6 +196,10 @@ func getUniqueCategories(showDone bool) []string {
 
 // ------------- ListCategoryTerms -------------
 func ListCategoryTerms(categoryName string, showDone bool, color int) {
+    
+    if categoryName == "." {
+        categoryName = getDirectoryName()
+    }
 
 	categoryTerms := getTermsInCategory(categoryName, showDone)
 	formattedHeader := generateHeader(textColor(formatBold(strings.ToUpper(categoryName)), color))

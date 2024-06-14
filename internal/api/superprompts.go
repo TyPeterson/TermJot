@@ -24,7 +24,8 @@ var superPrompts = map[string]string{
     "default_formatting": 
         "### FORMATTING ###" + "\n" +
         "If the answer is code, provide the code in a code block" + "\n" +
-        "Use markdown to format your response" + "\n",
+        "Use markdown to format your response" + "\n" +
+        "Use tabs to indent code blocks" + "\n",
 
     "default_examples": "",
 
@@ -42,6 +43,7 @@ var superPrompts = map[string]string{
     "verbose_formatting": 
         "### FORMATTING ###" + "\n" +
         "Format your response using markdown" + "\n" +
+        "Use tabs to indent code blocks" + "\n" +
         "Any code examples should be in a code block" + "\n",
     "verbose_examples": "",
 
@@ -55,6 +57,8 @@ var superPrompts = map[string]string{
     "brief_formatting": 
         "### FORMATTING ###" + "\n" +
         "If the answer is code, provide the code in a code block" + "\n" +
+        "Use tabs to indent code blocks" + "\n" +
+        "Use markdown to format your response" + "\n" +
         "If the answer is a command, then provide only the command, and nothing else" + "\n" +
         "Do not provide any additional information" + "\n",
 
