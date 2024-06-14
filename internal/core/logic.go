@@ -82,7 +82,7 @@ func HandleAsk(question string, categoryName string, verbose, short bool) {
 	if verbose {
 		responseType = "verbose"
 	} else if short {
-		responseType = "short"
+		responseType = "brief"
 	} else {
 		responseType = "default"
 	}

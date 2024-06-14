@@ -46,19 +46,19 @@ var superPrompts = map[string]string{
     "verbose_examples": "",
 
 
-    "short_instructions":
+    "brief_instructions":
         "### INSTRUCTIONS ###" + "\n" +
         "Be concise and to the point" + "\n" +
         "Do not provide any unnecessary information" + "\n" +
         "Do not provide any overview, background, or context. Only provide the exact answer to what is being asked" + "\n",
 
-    "short_formatting": 
+    "brief_formatting": 
         "### FORMATTING ###" + "\n" +
         "If the answer is code, provide the code in a code block" + "\n" +
         "If the answer is a command, then provide only the command, and nothing else" + "\n" +
         "Do not provide any additional information" + "\n",
 
-    "short_examples": 
+    "brief_examples": 
         "### EXAMPLES ###" + "\n" +
         "example 1:" + "\n" +
         "prompt: What is the command to list all files in a directory?" + "\n" +
