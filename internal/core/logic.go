@@ -97,7 +97,9 @@ func HandleAsk(question string, categoryName string, verbose, short bool) {
 
 	responseHeader := generateHeader(formatBold("J O T"))
 	fmt.Println("\n" + responseHeader + "\n")
-
+    
+    // printFinalResponse(geminiResponse)
+    // fmt.Println()
 	printFinalResponse(formattedResult)
 }
 

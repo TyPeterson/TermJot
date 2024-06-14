@@ -154,32 +154,56 @@ func formatMarkdown(text string) string {
 		return match
 	})
 
+    text = strings.ReplaceAll(text, "\t", "    ")
 	return addMargins(text)
 }
-
 
 // ------------- addLineMargin -------------
 func addLineMargin(line string) string {
 	currentLine := marginString
 	currentLineCount := len(marginString)
 
-	words := strings.Split(line, " ")
 	var result []string
+	var word strings.Builder
 
-	for _, word := range words {
-		wordLen := len(stripAnsiCodes(word))
+	for _, char := range line {
+		if char == ' ' || char == '\t' {
+
+			if word.Len() > 0 {
+				wordStr := word.String()
+				wordLen := len(stripAnsiCodes(wordStr))
+
+				if currentLineCount+wordLen > (WIDTH - margin) {
+					result = append(result, currentLine)
+					currentLine = marginString + wordStr
+					currentLineCount = len(marginString) + wordLen
+				} else {
+					currentLine += wordStr
+					currentLineCount += wordLen
+				}
+				word.Reset()
+			}
+
+			currentLine += string(char)
+			currentLineCount++
+
+			if char == '\t' {
+				currentLineCount += 3 // since 1 is already added
+			}
+		} else {
+			word.WriteRune(char)
+		}
+	}
+
+	if word.Len() > 0 {
+		wordStr := word.String()
+		wordLen := len(stripAnsiCodes(wordStr))
 
 		if currentLineCount+wordLen > (WIDTH - margin) {
 			result = append(result, currentLine)
-			currentLine = marginString + word
-			currentLineCount = len(marginString) + wordLen + 1
+			currentLine = marginString + wordStr
 		} else {
-			if currentLineCount > len(marginString) {
-				currentLine += " "
-				currentLineCount++
-			}
-			currentLine += word
-			currentLineCount += wordLen
+			currentLine += wordStr
 		}
 	}
 
@@ -189,7 +213,7 @@ func addLineMargin(line string) string {
 
 // ------------- addMargins -------------
 func addMargins(text string) string {
-    var result []string
+	var result []string
 	text = strings.TrimLeft(text, NL)
 	lines := strings.Split(text, NL)
 
