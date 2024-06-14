@@ -66,7 +66,6 @@ func colorBlockTokens(text, lang string) string {
 
 // ----------------- generateHeader -----------------
 func generateHeader(headerText string) string {
-	// var margin int
 	var headerPadding int
 	var boxWidth int
 
@@ -150,7 +149,7 @@ func formatMarkdown(text string) string {
 		re := regexp.MustCompile("`([^`]*)`")
 		submatch := re.FindStringSubmatch(match)
 		if len(submatch) > 1 {
-			return formatInverted(submatch[1])
+			return formatItalic(submatch[1])
 		}
 		return match
 	})
@@ -190,11 +189,9 @@ func addLineMargin(line string) string {
 
 // ------------- addMargins -------------
 func addMargins(text string) string {
+    var result []string
 	text = strings.TrimLeft(text, NL)
-
 	lines := strings.Split(text, NL)
-
-	var result []string
 
 	for _, line := range lines {
 		formattedLine := addLineMargin(line)
@@ -206,12 +203,11 @@ func addMargins(text string) string {
 
 // ------------- formatHeader -------------
 func formatHeader(text string) string {
-	return fmt.Sprintf("\x1b[1m\x1b[4m%s\x1b[24m\x1b[22m", text) // Bold and underline
+    return formatBold(formatUnderline(text))
 }
 
 // ------------- formatBold -------------
 func formatBold(text string) string {
-	// re := regexp.MustCompile(`\*\*(.*?)\*\*`)
 	return fmt.Sprintf("\x1b[1m%s\x1b[22m", text)
 }
 
@@ -222,22 +218,13 @@ func formatFaint(text string) string {
 
 // ------------- formatItalic -------------
 func formatItalic(text string) string {
-	// re := regexp.MustCompile(`\*(.*?)\*`)
 	return fmt.Sprintf("\x1b[3m%s\x1b[23m", text)
 }
 
 // ------------- formatUnderline -------------
 func formatUnderline(text string) string {
-	// re := regexp.MustCompile(`__(.*?)__`)
 	return fmt.Sprintf("\x1b[4m%s\x1b[24m", text)
 }
-
-// ------------- formatInverted -------------
-func formatInverted(text string) string {
-	// return fmt.Sprintf("`%s`", formatItalic(formatBold(text)))
-    return formatItalic(text)
-}
-
 
 // ------------- stripAnsiCodes -------------
 func stripAnsiCodes(input string) string {
@@ -247,7 +234,6 @@ func stripAnsiCodes(input string) string {
 
 // ------------- padLine -------------
 func padLine(text string) string {
-	// width, _, _ := term.GetSize(0)
 	padding := int(float64(WIDTH) * 0.25)
 	textLen := len(stripAnsiCodes(text))
 
