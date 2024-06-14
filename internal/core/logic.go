@@ -14,56 +14,56 @@ var terms []models.Term
 // ------------- HandleAdd -------------
 func HandleAdd(termName, categoryName string) {
 
-    if categoryName = FilterCategoryName(categoryName); categoryName == "" { 
+    if categoryName = filterCategoryName(categoryName); categoryName == "" { 
         return
     }
-    if termName = FilterTermName(termName, categoryName); termName == "" {
+    if termName = filterTermName(termName, categoryName); termName == "" {
         return
     }
 
-    AddTerm(termName, categoryName, promptForInput(fmt.Sprintf("\n%s %s", TextColor(formatBold("Definition"), 14), formatFaint(formatItalic("[Enter to cancel]: ")))))
+    addTerm(termName, categoryName, promptForInput(fmt.Sprintf("\n%s %s", textColor(formatBold("Definition"), 14), formatFaint(formatItalic("[Enter to cancel]: ")))))
     fmt.Println("Term added successfully")
 }
 
 // ------------- HandleDefine -------------
 func HandleDefine(termName, categoryName string) {
 
-    if categoryName = FilterCategoryName(categoryName); categoryName == "" {
+    if categoryName = filterCategoryName(categoryName); categoryName == "" {
         return
     }
-    if termName = FilterTermName(termName, categoryName); termName == "" {
+    if termName = filterTermName(termName, categoryName); termName == "" {
         return
     }
 
-    SetDefinition(termName, categoryName, promptForInput(fmt.Sprintf("\n%s %s", TextColor(formatBold("Definition"), 14), formatFaint(formatItalic("[Enter to cancel]: ")))))
+    setDefinition(termName, categoryName, promptForInput(fmt.Sprintf("\n%s %s", textColor(formatBold("Definition"), 14), formatFaint(formatItalic("[Enter to cancel]: ")))))
     fmt.Println("Definition update successful")
 }
 
 // ------------- HandleRemove -------------
 func HandleRemove(termName, categoryName string) {
 
-    if categoryName = FilterCategoryName(categoryName); categoryName == "" {
+    if categoryName = filterCategoryName(categoryName); categoryName == "" {
         return
     }
-    if termName = FilterTermName(termName, categoryName); termName == "" {
+    if termName = filterTermName(termName, categoryName); termName == "" {
         return
     }
 
-	RemoveTerm(termName, categoryName)
+	removeTerm(termName, categoryName)
     fmt.Println("Term removed successfully")
 }
 
 // ------------- HandleDone -------------
 func HandleDone(termName, categoryName string) {
 
-    if categoryName = FilterCategoryName(categoryName); categoryName == "" {
+    if categoryName = filterCategoryName(categoryName); categoryName == "" {
         return
     }
-    if termName = FilterTermName(termName, categoryName); termName == "" {
+    if termName = filterTermName(termName, categoryName); termName == "" {
         return
     }
 
-	SetTermDone(termName, categoryName)
+	setTermDone(termName, categoryName)
     fmt.Println("Term marked as done")
 }
 
@@ -93,16 +93,16 @@ func HandleAsk(question string, categoryName string, verbose, short bool) {
 	geminiResponse = api.GetResponse(prompt, responseType)
 	done <- true
 
-	formattedResult := FormatMarkdown(geminiResponse)
+	formattedResult := formatMarkdown(geminiResponse)
 
-	responseHeader := GenerateHeader(formatBold("J O T"), true)
+	responseHeader := generateHeader(formatBold("J O T"), true)
 	fmt.Println("\n" + responseHeader + "\n")
 
-	PrintFinalResponse(formattedResult)
+	printFinalResponse(formattedResult)
 }
 
-// ------------- AddTerm -------------
-func AddTerm(termName, categoryName, definition string) error {
+// ------------- addTerm -------------
+func addTerm(termName, categoryName, definition string) error {
 
 	if definition == "" {
 		definition = "..."
@@ -122,8 +122,8 @@ func AddTerm(termName, categoryName, definition string) error {
 	return Save()
 }
 
-// ------------- RemoveTerm -------------
-func RemoveTerm(termName, categoryName string) {
+// ------------- removeTerm -------------
+func removeTerm(termName, categoryName string) {
 	for i, term := range terms {
 		if strings.ToLower(term.Name) == strings.ToLower(termName) && strings.ToLower(term.Category) == strings.ToLower(categoryName) {
 			terms = append(terms[:i], terms[i+1:]...)
@@ -134,8 +134,8 @@ func RemoveTerm(termName, categoryName string) {
 	Save()
 }
 
-// ------------- SetDefinition -------------
-func SetDefinition(termName, categoryName, definition string) {
+// ------------- setDefinition -------------
+func setDefinition(termName, categoryName, definition string) {
 
 	for i, term := range terms {
 		if strings.ToLower(term.Name) == strings.ToLower(termName) && strings.ToLower(term.Category) == strings.ToLower(categoryName) {
@@ -148,8 +148,8 @@ func SetDefinition(termName, categoryName, definition string) {
 	Save()
 }
 
-// ------------- SetTermDone -------------
-func SetTermDone(termName, categoryName string) {
+// ------------- setTermDone -------------
+func setTermDone(termName, categoryName string) {
 
 	for i, term := range terms {
 		if strings.ToLower(term.Name) == strings.ToLower(termName) && strings.ToLower(term.Category) == strings.ToLower(categoryName) {
@@ -162,19 +162,8 @@ func SetTermDone(termName, categoryName string) {
 	Save()
 }
 
-// ------------- GetTerm -------------
-func GetTerm(termName, categoryName string) models.Term {
-	for _, term := range terms {
-		if strings.ToLower(term.Name) == strings.ToLower(termName) && strings.ToLower(term.Category) == strings.ToLower(categoryName) {
-			return term
-		}
-	}
-
-	return models.Term{}
-}
-
-// ------------- GetTermsInCategory -------------
-func GetTermsInCategory(categoryName string, showDone bool) []models.Term {
+// ------------- getTermsInCategory -------------
+func getTermsInCategory(categoryName string, showDone bool) []models.Term {
 	var categoryTerms []models.Term
 	for _, term := range terms {
 		if strings.ToLower(term.Category) == strings.ToLower(categoryName) && term.Active != showDone {
@@ -185,20 +174,8 @@ func GetTermsInCategory(categoryName string, showDone bool) []models.Term {
 	return categoryTerms
 }
 
-// ------------- GetTermsWithName -------------
-func GetTermsWithName(termName string) []models.Term {
-	var namedTerms []models.Term
-	for _, term := range terms {
-		if strings.ToLower(term.Name) == strings.ToLower(termName) {
-			namedTerms = append(namedTerms, term)
-		}
-	}
-
-	return namedTerms
-}
-
-// ------------- GetUniqueCategories -------------
-func GetUniqueCategories(showDone bool) []string {
+// ------------- getUniqueCategories -------------
+func getUniqueCategories(showDone bool) []string {
 	uniqueCategories := make(map[string]struct{})
 	for _, term := range terms {
 		if term.Active != showDone { // Consider terms based on the opposite of showDone
@@ -220,8 +197,8 @@ func GetUniqueCategories(showDone bool) []string {
 // ------------- ListCategoryTerms -------------
 func ListCategoryTerms(categoryName string, showDone bool, color int) {
 
-	categoryTerms := GetTermsInCategory(categoryName, showDone)
-	formattedHeader := GenerateHeader(TextColor(formatBold(strings.ToUpper(categoryName)), color), false)
+	categoryTerms := getTermsInCategory(categoryName, showDone)
+	formattedHeader := generateHeader(textColor(formatBold(strings.ToUpper(categoryName)), color), false)
 	headerPrinted := false
 
 	for _, term := range categoryTerms {
@@ -240,7 +217,7 @@ func ListCategoryTerms(categoryName string, showDone bool, color int) {
 
 		termFormatted := fmt.Sprintf("%s  %s: %s\n", box, formatBold(term.Name), formatItalic(formatFaint(term.Definition)))
 
-		termFormattedWithMargins := strings.ReplaceAll(AddLineMargin(termFormatted), fmt.Sprintf("%s%s", NL, marginString), fmt.Sprintf("%s%s   ", NL, marginString))
+		termFormattedWithMargins := strings.ReplaceAll(addLineMargin(termFormatted), fmt.Sprintf("%s%s", NL, marginString), fmt.Sprintf("%s%s   ", NL, marginString))
 		fmt.Println(termFormattedWithMargins)
 	}
 
@@ -249,7 +226,7 @@ func ListCategoryTerms(categoryName string, showDone bool, color int) {
 // ------------- ListAllTerms -------------
 func ListAllTerms(showDone bool) {
 	// for each category, call ListCategoryTerms
-	uniqueCategories := GetUniqueCategories(showDone)
+	uniqueCategories := getUniqueCategories(showDone)
 	for idx, category := range uniqueCategories {
 		color := (idx * (256 / len(uniqueCategories))) + 1
 		ListCategoryTerms(category, showDone, color)
@@ -260,13 +237,13 @@ func ListAllTerms(showDone bool) {
 // ------------- ListAllCategories -------------
 func ListAllCategories() {
 	// get all unique categories and print them out
-	uniqueCategories := GetUniqueCategories(false)
+	uniqueCategories := getUniqueCategories(false)
 
 	fmt.Printf("\n    %s\n\n", formatUnderline(formatBold("Categories:")))
 
 	for idx, category := range uniqueCategories {
 		color := (idx * (256 / len(uniqueCategories))) + 1
-		categoryFormatted := fmt.Sprintf(" *  %s%s%s\n", TextColor("[", 15), TextColor(category, color), TextColor("]", 15))
+		categoryFormatted := fmt.Sprintf(" *  %s%s%s\n", textColor("[", 15), textColor(category, color), textColor("]", 15))
 
 		if category != "" {
 			fmt.Println(categoryFormatted)

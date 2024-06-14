@@ -7,7 +7,6 @@ import (
 	"regexp"
 	"strings"
     "time"
-
     "github.com/nexidian/gocliselect"
     "golang.org/x/term"
 )
@@ -25,14 +24,14 @@ func promptForInput(label string) string {
 func selectCategory() string {
     fmt.Println()
     menu := gocliselect.NewMenu("Select a category")
-    uniqueCategories := GetUniqueCategories(false)
+    uniqueCategories := getUniqueCategories(false)
     for idx, category := range uniqueCategories {
         var categoryFormatted string
         if category == "" {
-            categoryFormatted = TextColor("[   ]", 15)
+            categoryFormatted = textColor("[   ]", 15)
         } else {
             color := (idx * (256/len(uniqueCategories))) + 1
-            categoryFormatted = fmt.Sprintf("%s%s%s", TextColor("[", 15), TextColor(strings.ToUpper(category), color), TextColor("]", 15))
+            categoryFormatted = fmt.Sprintf("%s%s%s", textColor("[", 15), textColor(strings.ToUpper(category), color), textColor("]", 15))
         }
         menu.AddItem(categoryFormatted, category)
     }
@@ -46,7 +45,7 @@ func selectCategory() string {
 func selectTerm(categoryName string) string {
     fmt.Println()
     menu := gocliselect.NewMenu("Select a term")
-    termOptions := GetTermsInCategory(categoryName, false)
+    termOptions := getTermsInCategory(categoryName, false)
 
     for _, term := range termOptions {
         menu.AddItem(formatBold(term.Name), term.Name)
@@ -57,8 +56,8 @@ func selectTerm(categoryName string) string {
     return menu.Display()
 }
 
-// ------------- FilterCategoryName -------------
-func FilterCategoryName(categoryName string) string {
+// ------------- filterCategoryName -------------
+func filterCategoryName(categoryName string) string {
 
     if categoryName == "" {
         categoryName = selectCategory()
@@ -68,14 +67,14 @@ func FilterCategoryName(categoryName string) string {
     }
 
     if categoryName == "." {
-        categoryName = GetDirectoryName()
+        categoryName = getDirectoryName()
     }
 
     return categoryName
 }
 
-// ------------- FilterTermName -------------
-func FilterTermName(termName, categoryName string) string {
+// ------------- filterTermName -------------
+func filterTermName(termName, categoryName string) string {
     if termName == "" {
         termName = selectTerm(categoryName)
         if termName == "cancel selection" {
@@ -86,8 +85,8 @@ func FilterTermName(termName, categoryName string) string {
     return termName
 }
 
-// ------------- GetDirectoryName -------------
-func GetDirectoryName() string {
+// ------------- getDirectoryName -------------
+func getDirectoryName() string {
     dir, err := os.Getwd()
     if err != nil {
         fmt.Println(err)
@@ -143,7 +142,7 @@ func extractCodeBlocks(text string) string {
 			lang := lines[0]
 			codeBlock := strings.Join(lines[1:], "\n") // Join from lines[1:] to skip the language identifier
 
-			coloredBlock := ColorBlockTokens(codeBlock, lang)
+			coloredBlock := colorBlockTokens(codeBlock, lang)
 			codeBlocks = append(codeBlocks, coloredBlock)
 		}
 	}
@@ -183,15 +182,15 @@ func showLoading(done chan bool) {
 			fmt.Print("\033[K")
 			return
 		default:
-			fmt.Printf("%s %s", TextColor(animation[i%len(animation)], 201), "Loading...\r")
+			fmt.Printf("%s %s", textColor(animation[i%len(animation)], 201), "Loading...\r")
 			i++
 			time.Sleep(100 * time.Millisecond)
 		}
 	}
 }
 
-// ------------- PrintFinalResponse -------------
-func PrintFinalResponse(response string) {
+// ------------- printFinalResponse -------------
+func printFinalResponse(response string) {
     lines := strings.Split(response, NL)
     for _, line := range lines {
         fmt.Println(line)

@@ -23,33 +23,29 @@ func setWidth() int {
 	return width
 }
 
-// ------------- TextColor -------------
-func TextColor(text string, color int) string {
+// ------------- textColor -------------
+func textColor(text string, color int) string {
 	return fmt.Sprintf("\x1b[38;5;%dm%s\x1b[39m", color, text)
 }
 
-// ------------- BackgroundColor -------------
-func BackgroundColor(text string, color int) string {
+// ------------- backgroundColor -------------
+func backgroundColor(text string, color int) string {
 	return fmt.Sprintf("\x1b[48;5;%dm%s\x1b[0m", color, text)
 }
 
-// ------------- BackgroundColorRBG -------------
-func BackgroundColorRBG(text string, r, g, b int) string {
-	return fmt.Sprintf("\x1b[48;2;%d;%d;%dm%s\x1b[0m", r, g, b, text)
-}
 
 // ------------- replaceTabs -------------
 func replaceTabs(text string, tabSize int) string {
 	return strings.ReplaceAll(text, "\t", strings.Repeat(" ", tabSize))
 }
 
-// ------------- LineBreak -------------
-func LineBreak(char rune) string {
+// ------------- lineBreak -------------
+func lineBreak(char rune) string {
 	return strings.Repeat(string(char), WIDTH)
 }
 
-// ------------- ColorBlockTokens -------------
-func ColorBlockTokens(text, lang string) string {
+// ------------- colorBlockTokens -------------
+func colorBlockTokens(text, lang string) string {
 	var finalColoredBlock string
 
 	lexer := lexers.Get(lang)
@@ -67,7 +63,7 @@ func ColorBlockTokens(text, lang string) string {
 	for _, token := range it.Tokens() {
 
 		color := models.TokenColors[token.Type]
-		coloredToken := TextColor(token.Value, models.ColorsMap[color])
+		coloredToken := textColor(token.Value, models.ColorsMap[color])
 		finalColoredBlock += coloredToken
 	}
 
@@ -75,8 +71,8 @@ func ColorBlockTokens(text, lang string) string {
 	// return BackgroundColor(finalColoredBlock, 235) + NL + LineBreak(' ')
 }
 
-// ----------------- GenerateHeader() -----------------
-func GenerateHeader(headerText string, centered bool) string {
+// ----------------- generateHeader() -----------------
+func generateHeader(headerText string, centered bool) string {
 	// var margin int
 	var headerPadding int
 	var boxWidth int
@@ -107,8 +103,8 @@ func GenerateHeader(headerText string, centered bool) string {
 }
 
 
-// ------------- FormatMarkdown -------------
-func FormatMarkdown(text string) string {
+// ------------- formatMarkdown -------------
+func formatMarkdown(text string) string {
 	text = extractCodeBlocks(text)
 
 	// headers
@@ -167,12 +163,12 @@ func FormatMarkdown(text string) string {
 	})
 
 	text = replaceTabs(text, 5)
-	return AddMargins(text)
+	return addMargins(text)
 }
 
 
-// ------------- AddLineMargin -------------
-func AddLineMargin(line string) string {
+// ------------- addLineMargin -------------
+func addLineMargin(line string) string {
 	currentLine := marginString
 	currentLineCount := len(marginString)
 
@@ -200,8 +196,8 @@ func AddLineMargin(line string) string {
 	return strings.Join(result, NL)
 }
 
-// ------------- AddMargins -------------
-func AddMargins(text string) string {
+// ------------- addMargins -------------
+func addMargins(text string) string {
 	text = strings.TrimLeft(text, NL)
 
 	lines := strings.Split(text, NL)
@@ -209,7 +205,7 @@ func AddMargins(text string) string {
 	var result []string
 
 	for _, line := range lines {
-		formattedLine := AddLineMargin(line)
+		formattedLine := addLineMargin(line)
 		result = append(result, formattedLine)
 	}
 
@@ -264,16 +260,16 @@ func padLine(text string) string {
 	padding := int(float64(WIDTH) * 0.25)
 	textLen := len(stripAnsiCodes(text))
 
-	coloredPadding := BackgroundColor(strings.Repeat(" ", padding), 0)
+	coloredPadding := backgroundColor(strings.Repeat(" ", padding), 0)
 
 	textRightPadding := (WIDTH - textLen) - (padding * 2)
-	coloredText := BackgroundColor(text+strings.Repeat(" ", textRightPadding), 235)
+	coloredText := backgroundColor(text+strings.Repeat(" ", textRightPadding), 235)
 
 	return coloredPadding + coloredText + coloredPadding
 }
 
-// ------------- FormatCodeBlock -------------
-func FormatCodeBlock(text string) string {
+// ------------- formatCodeBlock -------------
+func formatCodeBlock(text string) string {
 	var formattedText string
 	lines := strings.Split(text, NL)
 
