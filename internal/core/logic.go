@@ -22,7 +22,7 @@ func HandleAdd(termName, categoryName string) {
     }
 
     addTerm(termName, categoryName, promptForInput(fmt.Sprintf("\n%s %s", textColor(formatBold("Definition"), 14), formatFaint(formatItalic("[Enter to cancel]: ")))))
-    fmt.Println("Term added successfully")
+    fmt.Println("\n\nTerm added successfully")
 }
 
 // ------------- HandleDefine -------------
@@ -36,7 +36,7 @@ func HandleDefine(termName, categoryName string) {
     }
 
     setDefinition(termName, categoryName, promptForInput(fmt.Sprintf("\n%s %s", textColor(formatBold("Definition"), 14), formatFaint(formatItalic("[Enter to cancel]: ")))))
-    fmt.Println("Definition update successful")
+    fmt.Println("\n\nDefinition update successful")
 }
 
 // ------------- HandleRemove -------------
@@ -50,7 +50,7 @@ func HandleRemove(termName, categoryName string) {
     }
 
 	removeTerm(termName, categoryName)
-    fmt.Println("Term removed successfully")
+    fmt.Println("\n\nTerm removed successfully")
 }
 
 // ------------- HandleDone -------------
@@ -64,7 +64,7 @@ func HandleDone(termName, categoryName string) {
     }
 
 	setTermDone(termName, categoryName)
-    fmt.Println("Term marked as done")
+    fmt.Println("\n\nTerm marked as done")
 }
 
 // ------------- HandleAsk -------------

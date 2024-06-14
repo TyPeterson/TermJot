@@ -13,5 +13,5 @@ func main() {
 		log.Fatalf("Error initializing core: %v", err)
 	}
 	cmd.Execute()
-    fmt.Printf("\n\n")
+    fmt.Println()
 }
