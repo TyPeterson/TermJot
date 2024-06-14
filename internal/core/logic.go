@@ -17,7 +17,7 @@ func HandleAdd(termName, categoryName string) {
     if categoryName = filterCategoryName(categoryName); categoryName == "" { 
         return
     }
-    if termName = filterTermName(termName, categoryName); termName == "" {
+    if termName = promptForInput(fmt.Sprintf("\n%s %s: ", textColor(formatBold("Term"), 14), formatFaint("[Enter to cancel]"))); termName == "" {
         return
     }
 
