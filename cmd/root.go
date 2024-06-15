@@ -28,7 +28,7 @@ func init() {
 	rootCmd.AddCommand(askCmd)
 	rootCmd.AddCommand(listCmd)
 
-	rootCmd.AddCommand(testCmd)
+	// rootCmd.AddCommand(testCmd)
 
     InitFlags()
 
