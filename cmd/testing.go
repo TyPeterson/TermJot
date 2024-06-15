@@ -5,14 +5,9 @@ import (
 	"fmt"
 	"log"
 	"os"
-
 	"os/exec"
-
 	"github.com/google/generative-ai-go/genai"
 	"github.com/spf13/cobra"
-
-	// "github.com/tmc/langchaingo/llms"
-	// "github.com/tmc/langchaingo/llms/googleai"
 	"google.golang.org/api/option"
 )
 

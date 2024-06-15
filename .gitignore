@@ -6,4 +6,5 @@ examples.txt
 design.drawio
 notes.md
 jot
-
+termjot
+cmd/testing.go
