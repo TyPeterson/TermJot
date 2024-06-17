@@ -1,8 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
-    "fmt"
+
 	"github.com/TyPeterson/TermJot/cmd"
 	"github.com/TyPeterson/TermJot/internal/core"
 )
@@ -12,6 +13,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error initializing core: %v", err)
 	}
+
 	cmd.Execute()
-    fmt.Println()
+	fmt.Println()
 }

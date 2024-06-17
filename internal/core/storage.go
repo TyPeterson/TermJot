@@ -1,83 +1,85 @@
 package core
 
 import (
-	"encoding/json"
+	"database/sql"
+	// "log"
 	"os"
 	"path/filepath"
+
 	"github.com/TyPeterson/TermJot/models"
+	_ "github.com/mattn/go-sqlite3"
 )
 
-const dataFileName = "termjot_data.json"
+const dbFileName = "termjot.db"
 
 type Storage struct {
-	FilePath string
+	DB *sql.DB
 }
 
-
-// ------------- Init() -------------
+// ------------- Init -------------
 func Init() error {
-	storage, err := NewStorage()
-
-    if err != nil {
-        return err
-    }
-
-	loadedTerms := storage.LoadData()
-	terms = loadedTerms
-
-    return nil
-}
-
-
-// ------------- NewStorage() -------------
-func NewStorage() (*Storage, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		return nil, err
+		return err
 	}
-	filePath := filepath.Join(homeDir, dataFileName)
-	return &Storage{FilePath: filePath}, nil
-}
+	filePath := filepath.Join(homeDir, dbFileName)
 
-// ------------- Save -------------
-func Save() error {
-    storage, err := NewStorage()
-    if err != nil {
-        return err
-    }
-    return storage.SaveData(terms)
-}
-
-
-// ------------- LoadData() -------------
-func (s *Storage) LoadData() []models.Term {
-	if _, err := os.Stat(s.FilePath); os.IsNotExist(err) {
-		return []models.Term{}
-	}
-
-	data, err := os.ReadFile(s.FilePath)
-	if err != nil {
-		return nil
-	}
-
-	var terms []models.Term
-	if err := json.Unmarshal(data, &struct {
-		Terms      *[]models.Term     `json:"terms"`
-	}{&terms}); err != nil {
-		return nil
-	}
-
-	return terms
-}
-
-// ------------- SaveData() -------------
-func (s *Storage) SaveData(terms []models.Term) error {
-	data, err := json.MarshalIndent(struct {
-		Terms      []models.Term     `json:"terms"`
-	}{terms}, "", "  ")
+	db, err := sql.Open("sqlite3", filePath)
 	if err != nil {
 		return err
 	}
 
-	return os.WriteFile(s.FilePath, data, 0644)
+	_, err = db.Exec(`
+	CREATE TABLE IF NOT EXISTS terms (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		name TEXT NOT NULL UNIQUE,
+		definition TEXT,
+		category TEXT,
+		active BOOLEAN NOT NULL CHECK (active IN (0, 1))
+	)`)
+	if err != nil {
+		return err
+	}
+
+	storage = &Storage{DB: db}
+	return nil
+}
+
+// ------------- SaveData -------------
+func (s *Storage) SaveData(term models.Term) error {
+	_, err := s.DB.Exec("INSERT OR REPLACE INTO terms (name, definition, category, active) VALUES (?, ?, ?, ?)",
+		term.Name, term.Definition, term.Category, term.Active)
+	return err
+}
+
+// ------------- LoadAllData -------------
+func (s *Storage) LoadAllData() ([]models.Term, error) {
+	rows, err := s.DB.Query("SELECT name, definition, category, active FROM terms")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var terms []models.Term
+	for rows.Next() {
+		var term models.Term
+		if err := rows.Scan(&term.Name, &term.Definition, &term.Category, &term.Active); err != nil {
+			return nil, err
+		}
+		terms = append(terms, term)
+	}
+	return terms, nil
+}
+
+// ------------- RemoveData -------------
+func (s *Storage) RemoveData(term models.Term) error {
+	_, err := s.DB.Exec("DELETE FROM terms WHERE name = ? AND category = ?", term.Name, term.Category)
+	return err
+}
+
+// ------------- UpdateData -------------
+func (s *Storage) UpdateData(term models.Term) error {
+	_, err := s.DB.Exec("UPDATE terms SET definition = ?, category = ?, active = ? WHERE name = ?",
+		term.Definition, term.Category, term.Active, term.Name)
+	return err
 }
