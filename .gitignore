@@ -9,3 +9,4 @@ jot
 termjot
 /cmd/testing.go
 .zed/
+*.db
