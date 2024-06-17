@@ -22,84 +22,84 @@ func promptForInput(label string) string {
 
 // ------------- selectCategory -------------
 func selectCategory() string {
-    fmt.Println()
-    menu := gocliselect.NewMenu("Select a category")
-    uniqueCategories := getUniqueCategories(false)
+	fmt.Println()
+	menu := gocliselect.NewMenu("Select a category")
+	uniqueCategories := getUniqueCategories(false)
 
-    if len(uniqueCategories) == 0 {
-        uniqueCategories = append(uniqueCategories, "ALL")
-    }
+	if len(uniqueCategories) == 0 {
+		uniqueCategories = append(uniqueCategories, "ALL")
+	}
 
-    for idx, category := range uniqueCategories {
-        var categoryFormatted string
-        if category == "" {
-            categoryFormatted = textColor("[   ]", 15)
-        } else {
-            color := (idx * (256/len(uniqueCategories))) + 1
-            categoryFormatted = fmt.Sprintf("%s%s%s", textColor("[", 15), textColor(strings.ToUpper(category), color), textColor("]", 15))
-        }
-        menu.AddItem(categoryFormatted, category)
-    }
+	for idx, category := range uniqueCategories {
+		var categoryFormatted string
+		if category == "" {
+			categoryFormatted = textColor("[   ]", 15)
+		} else {
+			color := (idx * (256 / len(uniqueCategories))) + 1
+			categoryFormatted = fmt.Sprintf("%s%s%s", textColor("[", 15), textColor(strings.ToUpper(category), color), textColor("]", 15))
+		}
+		menu.AddItem(categoryFormatted, category)
+	}
 
-    menu.AddItem(formatFaint("cancel"), "cancel selection")
+	menu.AddItem(formatFaint("cancel"), "cancel selection")
 
-    return menu.Display()
+	return menu.Display()
 }
 
 // ------------- selectTerm -------------
 func selectTerm(categoryName string) string {
-    fmt.Println()
-    menu := gocliselect.NewMenu("Select a term")
-    termOptions := getTermsInCategory(categoryName, false)
+	fmt.Println()
+	menu := gocliselect.NewMenu("Select a term")
+	termOptions := getTermsInCategory(categoryName, false)
 
-    for _, term := range termOptions {
-        menu.AddItem(formatBold(term.Name), term.Name)
-    }
+	for _, term := range termOptions {
+		menu.AddItem(formatBold(term.Name), term.Name)
+	}
 
-    menu.AddItem(formatFaint("cancel"), "cancel selection")
+	menu.AddItem(formatFaint("cancel"), "cancel selection")
 
-    return menu.Display()
+	return menu.Display()
 }
 
 // ------------- filterCategoryName -------------
 func filterCategoryName(categoryName string) string {
 
-    if categoryName == "" {
-        categoryName = selectCategory()
-        if categoryName == "cancel selection" {
-            return ""
-        }
-    }
+	if categoryName == "" {
+		categoryName = selectCategory()
+		if categoryName == "cancel selection" {
+			return ""
+		}
+	}
 
-    if categoryName == "." {
-        categoryName = getDirectoryName()
-    }
+	if categoryName == "." {
+		categoryName = getDirectoryName()
+	}
 
-    return categoryName
+	return categoryName
 }
 
 // ------------- filterTermName -------------
 func filterTermName(termName, categoryName string) string {
-    if termName == "" {
-        termName = selectTerm(categoryName)
-        if termName == "cancel selection" {
-            return ""
-        }
-    }
+	if termName == "" {
+		termName = selectTerm(categoryName)
+		if termName == "cancel selection" {
+			return ""
+		}
+	}
 
-    return termName
+	return termName
 }
 
 // ------------- getDirectoryName -------------
 func getDirectoryName() string {
-    dir, err := os.Getwd()
-    if err != nil {
-        fmt.Println(err)
-        return ""
-    }
+	dir, err := os.Getwd()
+	if err != nil {
+		fmt.Println(err)
+		return ""
+	}
 
-    dirSplit := strings.Split(dir, "/")
-    return dirSplit[len(dirSplit)-1]
+	dirSplit := strings.Split(dir, "/")
+	return dirSplit[len(dirSplit)-1]
 }
 
 // ------------- createBoxHeader -------------
@@ -125,27 +125,21 @@ func createBoxHeader(headerText string) string {
 
 	fmt.Println(finalHeader)
 
-    return ""
+	return ""
 }
 
 // ------------- extractCodeBlocks -------------
 func extractCodeBlocks(text string) string {
-	re := regexp.MustCompile("(?s)```\\s*(\\w+)?(.*?)```")
-	submatches := re.FindAllStringSubmatchIndex(text, -1)
+	// Regular expression to match code blocks with optional language identifier
+	re := regexp.MustCompile("(?s)```\\s*(\\w+)?\\s*(.*?)```")
+	submatches := re.FindAllStringSubmatch(text, -1)
 
 	var codeBlocks []string
 	for _, match := range submatches {
 		// Ensure the match has enough indices
-		if len(match) >= 6 && match[2] >= 0 && match[3] >= 0 && match[4] >= 0 && match[5] >= 0 && match[2] <= match[3] && match[4] <= match[5] {
-			codeBlockWithLang := text[match[2]:match[3]] + text[match[4]:match[5]]
-			lines := strings.Split(codeBlockWithLang, "\n")
-
-			if len(lines) < 2 {
-				continue
-			}
-
-			lang := lines[0]
-			codeBlock := strings.Join(lines[1:], "\n") // Join from lines[1:] to skip the language identifier
+		if len(match) >= 3 {
+			lang := strings.TrimSpace(match[1]) // The language identifier (if provided)
+			codeBlock := match[2]               // The actual code block content
 
 			coloredBlock := colorBlockTokens(codeBlock, lang)
 			codeBlocks = append(codeBlocks, coloredBlock)
@@ -155,13 +149,15 @@ func extractCodeBlocks(text string) string {
 	var result strings.Builder
 	lastIndex := 0
 
-	for i, match := range submatches {
-		if len(match) >= 2 && match[0] >= 0 && match[1] >= 0 && match[0] <= match[1] {
-			result.WriteString(text[lastIndex:match[0]])
-			if i < len(codeBlocks) {
-				result.WriteString(codeBlocks[i])
+	for _, match := range submatches {
+		if len(match) >= 0 {
+			start := strings.Index(text[lastIndex:], match[0])
+			if start >= 0 {
+				result.WriteString(text[lastIndex : lastIndex+start])
+				result.WriteString(codeBlocks[0])
+				codeBlocks = codeBlocks[1:]
+				lastIndex += start + len(match[0])
 			}
-			lastIndex = match[1]
 		}
 	}
 	result.WriteString(text[lastIndex:])
@@ -196,11 +192,11 @@ func showLoading(done chan bool) {
 
 // ------------- printFinalResponse -------------
 func printFinalResponse(response string) {
-    lines := strings.Split(response, NL)
-    for _, line := range lines {
-        fmt.Println(line)
-        time.Sleep(35 * time.Millisecond)
-    }
+	lines := strings.Split(response, NL)
+	for _, line := range lines {
+		fmt.Println(line)
+		time.Sleep(35 * time.Millisecond)
+	}
 
-    fmt.Print("\n\n")
+	fmt.Print("\n\n")
 }

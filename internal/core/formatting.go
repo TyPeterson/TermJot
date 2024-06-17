@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+
 	"github.com/TyPeterson/TermJot/models"
 	"github.com/alecthomas/chroma/lexers"
 	"golang.org/x/term"
@@ -43,9 +44,9 @@ func colorBlockTokens(text, lang string) string {
 	var finalColoredBlock string
 
 	lexer := lexers.Get(lang)
-    if lexer == nil {
-        lexer = lexers.Fallback
-    }
+	if lexer == nil {
+		lexer = lexers.Fallback
+	}
 
 	it, err := lexer.Tokenise(nil, text)
 
@@ -71,29 +72,28 @@ func generateHeader(headerText string) string {
 
 	headerTextLen := len(stripAnsiCodes(headerText))
 
-    // add 12 to boxWidth, and -6 from left padding, to create an overhang of 6 on each side
-    boxWidth = (WIDTH - (2 * margin)) + 12
+	// add 12 to boxWidth, and -6 from left padding, to create an overhang of 6 on each side
+	boxWidth = (WIDTH - (2 * margin)) + 12
 
-    headerPadding = (boxWidth - headerTextLen) / 2
-    
-    var offset int
+	headerPadding = (boxWidth - headerTextLen) / 2
 
-    if WIDTH % 2 == 0 {
-        offset = headerTextLen % 2
-    } else {
-        offset = (headerTextLen + 1) % 2
-    }
+	var offset int
 
-    marginStringShortened := marginString[:len(marginString) - 6]
+	if WIDTH%2 == 0 {
+		offset = headerTextLen % 2
+	} else {
+		offset = (headerTextLen + 1) % 2
+	}
 
-    topBorder := marginStringShortened + "┌" + strings.Repeat("─", boxWidth) + "┐"
-    centerText := marginStringShortened + "│" + strings.Repeat(" ", headerPadding) + headerText + strings.Repeat(" ", headerPadding + offset) + "│"
-    botBorder := marginStringShortened + "└" + strings.Repeat("─", boxWidth) + "┘"
+	marginStringShortened := marginString[:len(marginString)-6]
 
-    finalHeader := topBorder + NL + centerText + NL + botBorder + NL
-    return finalHeader
+	topBorder := marginStringShortened + "┌" + strings.Repeat("─", boxWidth) + "┐"
+	centerText := marginStringShortened + "│" + strings.Repeat(" ", headerPadding) + headerText + strings.Repeat(" ", headerPadding+offset) + "│"
+	botBorder := marginStringShortened + "└" + strings.Repeat("─", boxWidth) + "┘"
+
+	finalHeader := topBorder + NL + centerText + NL + botBorder + NL
+	return finalHeader
 }
-
 
 // ------------- formatMarkdown -------------
 func formatMarkdown(text string) string {
@@ -144,17 +144,17 @@ func formatMarkdown(text string) string {
 	})
 
 	// inlined code strings
-	re = regexp.MustCompile("`([^`]*)`")
-	text = re.ReplaceAllStringFunc(text, func(match string) string {
-		re := regexp.MustCompile("`([^`]*)`")
-		submatch := re.FindStringSubmatch(match)
-		if len(submatch) > 1 {
-			return formatItalic(submatch[1])
-		}
-		return match
-	})
+	// re = regexp.MustCompile("`([^`]*)`")
+	// text = re.ReplaceAllStringFunc(text, func(match string) string {
+	// re := regexp.MustCompile("`([^`]*)`")
+	// submatch := re.FindStringSubmatch(match)
+	// if len(submatch) > 1 {
+	// return formatItalic(submatch[1])
+	// }
+	// return match
+	// })
 
-    text = strings.ReplaceAll(text, "\t", "    ")
+	text = strings.ReplaceAll(text, "\t", "    ")
 	return addMargins(text)
 }
 
@@ -227,7 +227,7 @@ func addMargins(text string) string {
 
 // ------------- formatHeader -------------
 func formatHeader(text string) string {
-    return formatBold(formatUnderline(text))
+	return formatBold(formatUnderline(text))
 }
 
 // ------------- formatBold -------------
