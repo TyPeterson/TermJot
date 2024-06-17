@@ -6,11 +6,11 @@ import (
 	"os"
 	"regexp"
 	"strings"
-    "time"
-    "github.com/nexidian/gocliselect"
-    "golang.org/x/term"
-)
+	"time"
 
+	"github.com/nexidian/gocliselect"
+	"golang.org/x/term"
+)
 
 // ------------- promptForInput -------------
 func promptForInput(label string) string {
@@ -204,4 +204,3 @@ func printFinalResponse(response string) {
 
     fmt.Print("\n\n")
 }
-
