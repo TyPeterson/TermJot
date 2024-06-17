@@ -6,7 +6,7 @@ import (
 )
 
 var addCmd = &cobra.Command{
-	Use:   "add [category] [-t termName] [-d define]",
+	Use:   "add [category] [-t termName | -d define]",
 	Short: "Add a new term to the global list or to a specified category",
 	Run: func(cmd *cobra.Command, args []string) {
 		category := ""

@@ -10,7 +10,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-const dbFileName = "termjot.db"
+const dbFileName = ".termjot.db"
 
 type Storage struct {
 	DB *sql.DB
