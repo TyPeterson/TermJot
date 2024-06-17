@@ -135,4 +135,3 @@ Although the **add**, **list**, **done**, and **remove** commands don't require 
 ---
 ## Example Usage
 **Ask command with -b flag**
-![Ask command with -b flag](./output.gif)

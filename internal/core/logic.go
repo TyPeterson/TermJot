@@ -6,7 +6,6 @@ import (
 
 	"github.com/TyPeterson/TermJot/internal/api"
 	"github.com/TyPeterson/TermJot/models"
-	"github.com/spf13/cobra"
 )
 
 var storage *Storage
@@ -270,10 +269,4 @@ func ListAllCategories() {
 		}
 	}
 
-}
-
-// ------------- Help -------------
-func Help(command *cobra.Command) {
-	fmt.Printf("Usage: %s\n", command.Use)
-	fmt.Printf("Description: %s\n", command.Short)
 }

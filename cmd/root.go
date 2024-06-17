@@ -3,6 +3,7 @@ package cmd
 import (
 	"log"
 	"os"
+
 	"github.com/spf13/cobra"
 )
 
@@ -20,16 +21,11 @@ func Execute() {
 
 func init() {
 
-	rootCmd.SetHelpCommand(customHelpCmd)
-
 	rootCmd.AddCommand(addCmd)
 	rootCmd.AddCommand(removeCmd)
 	rootCmd.AddCommand(doneCmd)
 	rootCmd.AddCommand(askCmd)
 	rootCmd.AddCommand(listCmd)
 
-	// rootCmd.AddCommand(testCmd)
-
-    InitFlags()
-
+	InitFlags()
 }
