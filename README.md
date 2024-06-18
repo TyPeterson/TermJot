@@ -73,6 +73,7 @@ TermJot supports the following commands:
 > **Flags:**
 > * -t, --term: (optional - string) The term to add to the database, surrounded by quotes.
 > * -d, --define: (optional - bool) Use this flag if you want to add a definition to an existing term. If given, the user will then select the term to add the definition to, followed by providing the definition.
+
 > *Note: the -t and -d flags are mutually exclusive, and only one can be used at a time.*
 
 
@@ -85,6 +86,7 @@ TermJot supports the following commands:
 > **Flags:**
 > * -d, --done: (optional - bool) Use this flag to only list the terms that have been marked as 'done'.
 > * -g, --categories: (optional - bool) Use this flag to list all categories, without any terms.
+
 > *Note: the -g flag must be used by itself, and cannot be used in conjunction with a category argument or any other flags.*
 
 
@@ -117,6 +119,7 @@ TermJot supports the following commands:
 > * -f, --file: (optional - string) The file to pass the contents of to the prompt. You can pass only the name of the file without the entire path, and the tool will search for the file in all subdirectories of the current directory.
 > * -b, --brief: (optional - bool) Use this flag to have the answer given in as few words as possible.
 > * -v, --verbose: (optional - bool) Use this flag to get a lengthy, detailed response.
+
 > *Note: The -b and -v flags are mutually exclusive, and cannot be used together.*
 
 ### Help
@@ -124,6 +127,7 @@ TermJot supports the following commands:
 
 > **Arguments:**
 > * command: (optional - string) The command to display help information for.
+
 > *Note: If no command is given, the help information for all commands will be displayed.*
 
 
