@@ -3,6 +3,7 @@ package core
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/TyPeterson/TermJot/internal/api"
@@ -90,12 +91,22 @@ func HandleAsk(question, categoryName, file string, verbose, short bool) {
 	}
 
 	if file != "" {
-		fileData, err := os.ReadFile(file)
+		fileName, err := findFileInSubdirectories(file)
+
+		if err != nil {
+			fmt.Printf("Error finding file: %v\n", err)
+			os.Exit(1)
+		}
+
+		// read in file with os.ReadFile into fileContext
+		fileContext, err := os.ReadFile(fileName)
 		if err != nil {
 			fmt.Printf("Error reading file: %v\n", err)
+			os.Exit(1)
 		}
-		fileContext := "For context, here are the contents of the " + file + " file:\n"
-		prompt = fileContext + string(fileData) + "\n\n" + prompt
+
+		// prepend file context to prompt
+		prompt = "For context, here are the contents of the " + file + " file:\n" + string(fileContext) + "\n\n" + prompt
 	}
 
 	done := make(chan bool)
@@ -279,4 +290,28 @@ func ListAllCategories() {
 		}
 	}
 
+}
+
+// ------------- findFileInSubdirectories -------------
+func findFileInSubdirectories(fileName string) (string, error) {
+	// search for the file in the current directory and all subdirectories
+	// return the path to the file if found, otherwise return an error
+	var foundPath string
+	err := filepath.Walk(".", func(path string, info os.FileInfo, err error) error {
+		if strings.Contains(path, fileName) {
+			foundPath = path
+		}
+		return nil
+	})
+
+	if err != nil {
+		return "", err
+	}
+
+	if foundPath == "" {
+		return "", fmt.Errorf("file not found")
+	}
+
+	// fmt.Println("Found file at: ", foundPath)
+	return foundPath, nil
 }
