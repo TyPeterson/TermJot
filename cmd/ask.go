@@ -6,7 +6,7 @@ import (
 )
 
 var askCmd = &cobra.Command{
-	Use:   "ask [-b | -v] [-c category] prompt",
+	Use:   "ask [-b | -v] [-c category] [-f file] prompt",
 	Short: "Ask about term using the Gemini-1.5-Flash API",
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
@@ -15,6 +15,6 @@ var askCmd = &cobra.Command{
 			prompt += arg + " "
 		}
 
-		core.HandleAsk(prompt, category, verbose, brief)
+		core.HandleAsk(prompt, category, file, verbose, brief)
 	},
 }

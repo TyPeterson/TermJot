@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/TyPeterson/TermJot/internal/api"
@@ -69,7 +70,7 @@ func HandleDone(termName, categoryName string) {
 }
 
 // ------------- HandleAsk -------------
-func HandleAsk(question string, categoryName string, verbose, short bool) {
+func HandleAsk(question, categoryName, file string, verbose, short bool) {
 
 	prompt := question
 
@@ -86,6 +87,15 @@ func HandleAsk(question string, categoryName string, verbose, short bool) {
 		responseType = "brief"
 	} else {
 		responseType = "default"
+	}
+
+	if file != "" {
+		fileData, err := os.ReadFile(file)
+		if err != nil {
+			fmt.Printf("Error reading file: %v\n", err)
+		}
+		fileContext := "For context, here are the contents of the " + file + " file:\n"
+		prompt = fileContext + string(fileData) + "\n\n" + prompt
 	}
 
 	done := make(chan bool)

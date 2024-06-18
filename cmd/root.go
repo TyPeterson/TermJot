@@ -20,7 +20,6 @@ func Execute() {
 }
 
 func init() {
-
 	rootCmd.AddCommand(addCmd)
 	rootCmd.AddCommand(removeCmd)
 	rootCmd.AddCommand(doneCmd)
