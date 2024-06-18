@@ -3,8 +3,9 @@ package api
 import (
 	"context"
 	"fmt"
-    "log"
-    "os"
+	"log"
+	"os"
+
 	"github.com/google/generative-ai-go/genai"
 	"google.golang.org/api/option"
 )
@@ -27,25 +28,22 @@ func InitializeGeminiClient() {
     }
 }
 
-
-
-
 // ----------------- GenerateResponse() -----------------
 func GetResponse(prompt, responseType string) string {
     promptContext := superPrompts["context"]
     promptInstructions := superPrompts[responseType+"_instructions"]
     promptFormatting := superPrompts[responseType+"_formatting"]
     promptExample := superPrompts[responseType+"_examples"]
-    
+
     completePromp := fmt.Sprintf("%s\n%s\n%s\n%s\n### PROMPT ###\n%s", promptContext, promptInstructions, promptFormatting, promptExample, prompt)
-    
+
     return generateContent(completePromp)
  }
 
 
 // ----------------- generateContent() -----------------
 func generateContent(prompt string) string {
-    InitializeGeminiClient() 
+    InitializeGeminiClient()
     ctx := context.Background()
     model := client.GenerativeModel("gemini-1.5-flash")
 
@@ -54,7 +52,7 @@ func generateContent(prompt string) string {
     if err != nil {
         log.Fatal(err)
     }
-    
+
     // fmt.Println("len(resp.Candidates):", len(resp.Candidates))
     if len(resp.Candidates) > 0 && len(resp.Candidates[0].Content.Parts) > 0 {
         return fmt.Sprintf("\n%s\n", resp.Candidates[0].Content.Parts[0])
@@ -62,4 +60,3 @@ func generateContent(prompt string) string {
 
     return ""
 }
-
