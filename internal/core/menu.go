@@ -84,8 +84,8 @@ func (m *Menu) printMenu() {
 // ---------- clearMenu ----------
 func (m *Menu) clearMenu() {
 	for i := 0; i < len(m.MenuItems)+1; i++ {
-		fmt.Print("\033[1A")
-		fmt.Print("\033[2K")
+		fmt.Print("\033[1A") // move cursor up one line
+		fmt.Print("\033[2K") // clear entire line
 	}
 }
 
