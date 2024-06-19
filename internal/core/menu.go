@@ -47,7 +47,6 @@ func (m *Menu) Display() string {
 		}
 
 		if r == 13 { // enter key
-			// m.clearMenu()
 			fmt.Println()
 			return m.MenuItems[m.selectedIndex].ReturnString
 		} else if r == 27 { // escape sequence
@@ -68,10 +67,8 @@ func (m *Menu) Display() string {
 
 // ---------- printMenu ----------
 func (m *Menu) printMenu() {
-	// m.clearMenu()
-	// fmt.Print("\033[2J") // clear the screen
-	// fmt.Print("\033[H")  // move cursor to top left corner
 	fmt.Println(textColor(m.Header, 72))
+
 	for i, item := range m.MenuItems {
 		if i == m.selectedIndex {
 			fmt.Println(textColor(fmt.Sprintf("> %s", item.DisplayString), 172))
