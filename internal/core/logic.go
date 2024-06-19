@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/TyPeterson/TermJot/internal/api"
-	"github.com/TyPeterson/TermJot/models"
 )
 
 var storage *Storage
@@ -67,7 +66,7 @@ func HandleDone(termName, categoryName string) {
 	}
 
 	setTermDone(termName, categoryName)
-	fmt.Println("\n\nTerm marked as done")
+	fmt.Println("Term marked as done")
 }
 
 // ------------- HandleAsk -------------
@@ -133,7 +132,7 @@ func addTerm(termName, categoryName, definition string) {
 		categoryName = "ALL"
 	}
 
-	term := models.Term{
+	term := Term{
 		Name:       termName,
 		Definition: definition,
 		Active:     true,
@@ -179,10 +178,10 @@ func setTermDone(termName, categoryName string) {
 }
 
 // ------------- getTerm -------------
-func getTerm(termName, categoryName string) (models.Term, error) {
+func getTerm(termName, categoryName string) (Term, error) {
 	terms, err := storage.LoadAllData()
 	if err != nil {
-		return models.Term{}, err
+		return Term{}, err
 	}
 
 	for _, term := range terms {
@@ -191,14 +190,14 @@ func getTerm(termName, categoryName string) (models.Term, error) {
 		}
 	}
 
-	return models.Term{}, fmt.Errorf("term not found")
+	return Term{}, fmt.Errorf("term not found")
 }
 
 // ------------- getTermsInCategory -------------
-func getTermsInCategory(categoryName string, showDone bool) []models.Term {
+func getTermsInCategory(categoryName string, showDone bool) []Term {
 	terms, _ := storage.LoadAllData()
 
-	var categoryTerms []models.Term
+	var categoryTerms []Term
 	for _, term := range terms {
 		if strings.ToLower(term.Category) == strings.ToLower(categoryName) && term.Active != showDone {
 			categoryTerms = append(categoryTerms, term)

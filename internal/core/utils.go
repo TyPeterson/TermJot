@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/nexidian/gocliselect"
+	// "github.com/nexidian/gocliselect"
 	"golang.org/x/term"
 )
 
@@ -23,7 +23,7 @@ func promptForInput(label string) string {
 // ------------- selectCategory -------------
 func selectCategory() string {
 	fmt.Println()
-	menu := gocliselect.NewMenu("Select a category")
+	menu := Menu{Header: "Select a category:"}
 	uniqueCategories := getUniqueCategories(false)
 
 	if len(uniqueCategories) == 0 {
@@ -49,7 +49,8 @@ func selectCategory() string {
 // ------------- selectTerm -------------
 func selectTerm(categoryName string) string {
 	fmt.Println()
-	menu := gocliselect.NewMenu("Select a term")
+	// menu := gocliselect.NewMenu("Select a term")
+	menu := Menu{Header: fmt.Sprintf("Select a term from %s:", categoryName)}
 	termOptions := getTermsInCategory(categoryName, false)
 
 	for _, term := range termOptions {

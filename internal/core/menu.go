@@ -1,4 +1,4 @@
-package models
+package core
 
 import (
 	"fmt"
@@ -47,6 +47,8 @@ func (m *Menu) Display() string {
 		}
 
 		if r == 13 { // enter key
+			// m.clearMenu()
+			fmt.Println()
 			return m.MenuItems[m.selectedIndex].ReturnString
 		} else if r == 27 { // escape sequence
 			r1, _ := tty.ReadRune()
@@ -66,15 +68,24 @@ func (m *Menu) Display() string {
 
 // ---------- printMenu ----------
 func (m *Menu) printMenu() {
-	fmt.Print("\033[2J") // Clear the screen
-	fmt.Print("\033[H")  // Move cursor to top left corner
-	fmt.Println(core.textColor(m.Header, 2))
+	// m.clearMenu()
+	// fmt.Print("\033[2J") // clear the screen
+	// fmt.Print("\033[H")  // move cursor to top left corner
+	fmt.Println(textColor(m.Header, 72))
 	for i, item := range m.MenuItems {
 		if i == m.selectedIndex {
-			fmt.Println(core.textColor(fmt.Sprintf("> %s", item.DisplayString), 1))
+			fmt.Println(textColor(fmt.Sprintf("> %s", item.DisplayString), 172))
 		} else {
 			fmt.Printf("  %s\n", item.DisplayString)
 		}
+	}
+}
+
+// ---------- clearMenu ----------
+func (m *Menu) clearMenu() {
+	for i := 0; i < len(m.MenuItems)+1; i++ {
+		fmt.Print("\033[1A")
+		fmt.Print("\033[2K")
 	}
 }
 
@@ -83,6 +94,7 @@ func (m *Menu) moveUp() {
 	if m.selectedIndex > 0 {
 		m.selectedIndex--
 	}
+	m.clearMenu()
 }
 
 // ---------- moveDown ----------
@@ -90,4 +102,5 @@ func (m *Menu) moveDown() {
 	if m.selectedIndex < len(m.MenuItems)-1 {
 		m.selectedIndex++
 	}
+	m.clearMenu()
 }

@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/TyPeterson/TermJot/models"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -46,23 +45,23 @@ func Init() error {
 }
 
 // ------------- SaveData -------------
-func (s *Storage) SaveData(term models.Term) error {
+func (s *Storage) SaveData(term Term) error {
 	_, err := s.DB.Exec("INSERT OR REPLACE INTO terms (name, definition, category, active) VALUES (?, ?, ?, ?)",
 		term.Name, term.Definition, term.Category, term.Active)
 	return err
 }
 
 // ------------- LoadAllData -------------
-func (s *Storage) LoadAllData() ([]models.Term, error) {
+func (s *Storage) LoadAllData() ([]Term, error) {
 	rows, err := s.DB.Query("SELECT name, definition, category, active FROM terms")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var terms []models.Term
+	var terms []Term
 	for rows.Next() {
-		var term models.Term
+		var term Term
 		if err := rows.Scan(&term.Name, &term.Definition, &term.Category, &term.Active); err != nil {
 			return nil, err
 		}
@@ -72,13 +71,13 @@ func (s *Storage) LoadAllData() ([]models.Term, error) {
 }
 
 // ------------- RemoveData -------------
-func (s *Storage) RemoveData(term models.Term) error {
+func (s *Storage) RemoveData(term Term) error {
 	_, err := s.DB.Exec("DELETE FROM terms WHERE name = ? AND category = ?", term.Name, term.Category)
 	return err
 }
 
 // ------------- UpdateData -------------
-func (s *Storage) UpdateData(term models.Term) error {
+func (s *Storage) UpdateData(term Term) error {
 	_, err := s.DB.Exec("UPDATE terms SET definition = ?, category = ?, active = ? WHERE name = ?",
 		term.Definition, term.Category, term.Active, term.Name)
 	return err

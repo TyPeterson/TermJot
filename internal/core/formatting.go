@@ -5,7 +5,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/TyPeterson/TermJot/models"
 	"github.com/alecthomas/chroma/lexers"
 	"golang.org/x/term"
 )
@@ -57,8 +56,8 @@ func colorBlockTokens(text, lang string) string {
 
 	for _, token := range it.Tokens() {
 
-		color := models.TokenColors[token.Type]
-		coloredToken := textColor(token.Value, models.ColorsMap[color])
+		color := TokenColors[token.Type]
+		coloredToken := textColor(token.Value, ColorsMap[color])
 		finalColoredBlock += coloredToken
 	}
 
