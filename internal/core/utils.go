@@ -49,7 +49,6 @@ func selectCategory() string {
 // ------------- selectTerm -------------
 func selectTerm(categoryName string) string {
 	fmt.Println()
-	// menu := gocliselect.NewMenu("Select a term")
 	menu := Menu{Header: fmt.Sprintf("Select a term from %s:", categoryName)}
 	termOptions := getTermsInCategory(categoryName, false)
 
@@ -69,11 +68,28 @@ func filterCategoryName(categoryName string) string {
 		categoryName = selectCategory()
 		if categoryName == "cancel selection" {
 			return ""
+		} else {
+			return categoryName
 		}
 	}
 
 	if categoryName == "." {
-		categoryName = getDirectoryName()
+		return getDirectoryName()
+	}
+
+	categories := getUniqueCategories(false)
+	validCategory := false
+
+	for _, category := range categories {
+		if strings.ToUpper(category) == strings.ToUpper(categoryName) {
+			validCategory = true
+			break
+		}
+	}
+
+	if !validCategory {
+		fmt.Println("Invalid category name")
+		return "not found"
 	}
 
 	return categoryName
@@ -86,9 +102,15 @@ func filterTermName(termName, categoryName string) string {
 		if termName == "cancel selection" {
 			return ""
 		}
+		return termName
 	}
 
-	return termName
+	// check if term exists in category
+	term, err := GetTerm(termName, categoryName)
+	if err != nil {
+		return "not found"
+	}
+	return term.Name
 }
 
 // ------------- getDirectoryName -------------

@@ -9,7 +9,7 @@ import (
 	"github.com/TyPeterson/TermJot/internal/api"
 )
 
-var storage *Storage
+// var storage *Storage
 
 // ------------- HandleAdd -------------
 func HandleAdd(termName, categoryName string) {
@@ -17,12 +17,21 @@ func HandleAdd(termName, categoryName string) {
 	if categoryName = filterCategoryName(categoryName); categoryName == "" {
 		return
 	}
-	if termName = promptForInput(fmt.Sprintf("\n%s %s: ", textColor(formatBold("Term"), 14), formatFaint("[Enter to cancel]"))); termName == "" {
+
+	if termName == "" {
+		termName = promptForInput(fmt.Sprintf("\n%s %s", textColor(formatBold("Term Name"), 14), formatFaint(formatItalic("[Enter to cancel]: "))))
+		if termName == "" {
+			return
+		}
+	}
+
+	definition := promptForInput(fmt.Sprintf("\n%s %s", textColor(formatBold("Definition"), 14), formatFaint(formatItalic("[Enter to skip]: "))))
+	err := addTerm(termName, categoryName, definition)
+	if err != nil {
+		fmt.Println("Error adding term")
 		return
 	}
 
-	definition := promptForInput(fmt.Sprintf("\n%s %s", textColor(formatBold("Definition"), 14), formatFaint(formatItalic("[Enter to cancel]: "))))
-	addTerm(termName, categoryName, definition)
 	fmt.Println("\n\nTerm added successfully")
 }
 
@@ -37,7 +46,12 @@ func HandleDefine(termName, categoryName string) {
 	}
 
 	definition := promptForInput(fmt.Sprintf("\n%s %s", textColor(formatBold("Definition"), 14), formatFaint(formatItalic("[Enter to cancel]: "))))
-	setDefinition(termName, categoryName, definition)
+	err := setDefinition(termName, categoryName, definition)
+	if err != nil {
+		fmt.Println("Error updating definition")
+		return
+	}
+
 	fmt.Println("\n\nDefinition update successful")
 }
 
@@ -47,11 +61,25 @@ func HandleRemove(termName, categoryName string) {
 	if categoryName = filterCategoryName(categoryName); categoryName == "" {
 		return
 	}
-	if termName = filterTermName(termName, categoryName); termName == "" {
+	if categoryName == "not found" {
+		fmt.Println("Error: Category not found")
 		return
 	}
 
-	removeTerm(termName, categoryName)
+	if termName = filterTermName(termName, categoryName); termName == "" {
+		return
+	}
+	if termName == "not found" {
+		fmt.Println("Error: Term not found")
+		return
+	}
+
+	err := removeTerm(termName, categoryName)
+	if err != nil {
+		fmt.Println("Error removing term")
+		return
+	}
+
 	fmt.Println("\n\nTerm removed successfully")
 }
 
@@ -65,7 +93,12 @@ func HandleDone(termName, categoryName string) {
 		return
 	}
 
-	setTermDone(termName, categoryName)
+	err := setTermDone(termName, categoryName)
+	if err != nil {
+		fmt.Println("Error marking term as done")
+		return
+	}
+
 	fmt.Println("Term marked as done")
 }
 
@@ -123,7 +156,7 @@ func HandleAsk(question, categoryName, file string, verbose, short bool) {
 }
 
 // ------------- addTerm -------------
-func addTerm(termName, categoryName, definition string) {
+func addTerm(termName, categoryName, definition string) error {
 
 	if definition == "" {
 		definition = "..."
@@ -139,46 +172,54 @@ func addTerm(termName, categoryName, definition string) {
 		Category:   strings.ToUpper(categoryName),
 	}
 
-	if err := storage.SaveData(term); err != nil {
-		fmt.Printf("Error adding term: %v\n", err)
-	}
+	err := storage.SaveData(term)
+	return err
 }
 
 // ------------- removeTerm -------------
-func removeTerm(termName, categoryName string) {
+func removeTerm(termName, categoryName string) error {
 
-	term, err := getTerm(termName, categoryName)
+	term, err := GetTerm(termName, categoryName)
 	if err != nil {
-		fmt.Printf("Error removing term: %v\n", err)
+		fmt.Printf("Error finding term: %v\n", err)
+		return err
 	}
 
-	if err := storage.RemoveData(term); err != nil {
-		fmt.Printf("Error removing term: %v\n", err)
-	}
+	err = storage.RemoveData(term)
+	return err
 }
 
 // ------------- setDefinition -------------
-func setDefinition(termName, categoryName, definition string) {
-	term, _ := getTerm(termName, categoryName)
+func setDefinition(termName, categoryName, definition string) error {
+	term, err := GetTerm(termName, categoryName)
+	if err != nil {
+		fmt.Printf("Error finding term: %v\n", err)
+		return err
+	}
 	term.Definition = definition
 
-	if err := storage.UpdateData(term); err != nil {
-		fmt.Printf("Error updating definition: %v\n", err)
-	}
+	err = storage.UpdateData(term)
+	return err
 }
 
 // ------------- setTermDone -------------
-func setTermDone(termName, categoryName string) {
-	term, _ := getTerm(termName, categoryName)
+func setTermDone(termName, categoryName string) error {
+	term, err := GetTerm(termName, categoryName)
+	if err != nil {
+		fmt.Printf("Error finding term: %v\n", err)
+		return err
+	}
 	term.Active = false
 
-	if err := storage.UpdateData(term); err != nil {
-		fmt.Printf("Error updating term: %v\n", err)
-	}
+	// if err := storage.UpdateData(term); err != nil {
+	// 	fmt.Printf("Error updating term: %v\n", err)
+	// }
+	err = storage.UpdateData(term)
+	return err
 }
 
-// ------------- getTerm -------------
-func getTerm(termName, categoryName string) (Term, error) {
+// ------------- GetTerm -------------
+func GetTerm(termName, categoryName string) (Term, error) {
 	terms, err := storage.LoadAllData()
 	if err != nil {
 		return Term{}, err
