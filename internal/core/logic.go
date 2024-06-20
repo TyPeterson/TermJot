@@ -9,18 +9,11 @@ import (
 	"github.com/TyPeterson/TermJot/internal/api"
 )
 
-// var storage *Storage
-
 // ------------- HandleAdd -------------
 func HandleAdd(termName, categoryName string) {
 
-	if categoryName = filterCategoryName(categoryName); categoryName == "" {
-		return
-	}
-
 	if termName == "" {
-		termName = promptForInput(fmt.Sprintf("\n%s %s", textColor(formatBold("Term Name"), 14), formatFaint(formatItalic("[Enter to cancel]: "))))
-		if termName == "" {
+		if termName = promptForInput(fmt.Sprintf("\n%s %s", textColor(formatBold("Term Name"), 14), formatFaint(formatItalic("[Enter to cancel]: ")))); termName == "" {
 			return
 		}
 	}
@@ -61,16 +54,8 @@ func HandleRemove(termName, categoryName string) {
 	if categoryName = filterCategoryName(categoryName); categoryName == "" {
 		return
 	}
-	if categoryName == "not found" {
-		fmt.Println("Error: Category not found")
-		return
-	}
 
 	if termName = filterTermName(termName, categoryName); termName == "" {
-		return
-	}
-	if termName == "not found" {
-		fmt.Println("Error: Term not found")
 		return
 	}
 

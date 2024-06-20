@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	// "github.com/nexidian/gocliselect"
 	"golang.org/x/term"
 )
 
@@ -18,6 +17,29 @@ func promptForInput(label string) string {
 	reader := bufio.NewReader(os.Stdin)
 	input, _ := reader.ReadString('\n')
 	return strings.TrimSpace(input)
+}
+
+// ------------- categoryExists -------------
+func categoryExists(categoryName string) bool {
+	categories := getUniqueCategories(false)
+
+	for _, category := range categories {
+		if strings.ToLower(category) == strings.ToLower(categoryName) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// ------------- termExists -------------
+func termExists(termName, categoryName string) bool {
+	_, err := GetTerm(termName, categoryName)
+	if err != nil {
+		return false
+	}
+
+	return true
 }
 
 // ------------- selectCategory -------------
@@ -77,22 +99,12 @@ func filterCategoryName(categoryName string) string {
 		return getDirectoryName()
 	}
 
-	categories := getUniqueCategories(false)
-	validCategory := false
-
-	for _, category := range categories {
-		if strings.ToUpper(category) == strings.ToUpper(categoryName) {
-			validCategory = true
-			break
-		}
+	if categoryExists(categoryName) {
+		return categoryName
 	}
 
-	if !validCategory {
-		fmt.Println("Invalid category name")
-		return "not found"
-	}
-
-	return categoryName
+	fmt.Println("Error: Category not found")
+	return ""
 }
 
 // ------------- filterTermName -------------
@@ -105,12 +117,12 @@ func filterTermName(termName, categoryName string) string {
 		return termName
 	}
 
-	// check if term exists in category
-	term, err := GetTerm(termName, categoryName)
-	if err != nil {
-		return "not found"
+	if termExists(termName, categoryName) {
+		return termName
 	}
-	return term.Name
+
+	fmt.Println("Error: Term not found")
+	return ""
 }
 
 // ------------- getDirectoryName -------------
