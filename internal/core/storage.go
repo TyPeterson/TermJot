@@ -2,7 +2,6 @@ package core
 
 import (
 	"database/sql"
-	// "log"
 	"os"
 	"path/filepath"
 
@@ -15,15 +14,20 @@ type Storage struct {
 	DB *sql.DB
 }
 
+var storage *Storage
+
 // ------------- Init -------------
 func Init() error {
-	homeDir, err := os.UserHomeDir()
-	if err != nil {
-		return err
+	dbPath := os.Getenv("TERMJOT_DB_PATH")
+	if dbPath == "" {
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			return err
+		}
+		dbPath = filepath.Join(homeDir, dbFileName)
 	}
-	filePath := filepath.Join(homeDir, dbFileName)
 
-	db, err := sql.Open("sqlite3", filePath)
+	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
 		return err
 	}
@@ -81,4 +85,19 @@ func (s *Storage) UpdateData(term Term) error {
 	_, err := s.DB.Exec("UPDATE terms SET definition = ?, category = ?, active = ? WHERE name = ?",
 		term.Definition, term.Category, term.Active, term.Name)
 	return err
+}
+
+// ------------- Close -------------
+func (s *Storage) Close() error {
+	return s.DB.Close()
+}
+
+// ------------- SetStorage -------------
+func SetStorage(s *Storage) {
+	storage = s
+}
+
+// ------------- GetStorage -------------
+func GetStorage() *Storage {
+	return storage
 }

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/TyPeterson/TermJot/internal/core"
@@ -10,11 +11,15 @@ import (
 var addCmd = &cobra.Command{
 	Use:   "add [category] [-t termName | -d define]",
 	Short: "Add a new term to the global list or to a specified category",
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		if termName != "" && define {
 			fmt.Println("Error: The -t and -d flags cannot be used together")
-			return
+			return errors.New("Error: The -t and -d flags cannot be used together")
 		}
+
+	  if cmd.Flags().Changed("termName") && termName == "" {
+            return errors.New("Error: The -t flag requires a non-empty term name")
+        }
 
 		category := ""
 		if len(args) > 0 {
@@ -27,5 +32,6 @@ var addCmd = &cobra.Command{
 			core.HandleAdd(termName, category)
 		}
 
+		return nil
 	},
 }

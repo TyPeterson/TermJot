@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	// "github.com/nexidian/gocliselect"
 	"golang.org/x/term"
 )
 
@@ -18,6 +17,29 @@ func promptForInput(label string) string {
 	reader := bufio.NewReader(os.Stdin)
 	input, _ := reader.ReadString('\n')
 	return strings.TrimSpace(input)
+}
+
+// ------------- categoryExists -------------
+func categoryExists(categoryName string) bool {
+	categories := getUniqueCategories(false)
+
+	for _, category := range categories {
+		if strings.ToLower(category) == strings.ToLower(categoryName) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// ------------- termExists -------------
+func termExists(termName, categoryName string) bool {
+	_, err := GetTerm(termName, categoryName)
+	if err != nil {
+		return false
+	}
+
+	return true
 }
 
 // ------------- selectCategory -------------
@@ -49,7 +71,6 @@ func selectCategory() string {
 // ------------- selectTerm -------------
 func selectTerm(categoryName string) string {
 	fmt.Println()
-	// menu := gocliselect.NewMenu("Select a term")
 	menu := Menu{Header: fmt.Sprintf("Select a term from %s:", categoryName)}
 	termOptions := getTermsInCategory(categoryName, false)
 
@@ -69,14 +90,21 @@ func filterCategoryName(categoryName string) string {
 		categoryName = selectCategory()
 		if categoryName == "cancel selection" {
 			return ""
+		} else {
+			return categoryName
 		}
 	}
 
 	if categoryName == "." {
-		categoryName = getDirectoryName()
+		return getDirectoryName()
 	}
 
-	return categoryName
+	if categoryExists(categoryName) {
+		return categoryName
+	}
+
+	fmt.Println("Error: Category not found")
+	return ""
 }
 
 // ------------- filterTermName -------------
@@ -86,9 +114,15 @@ func filterTermName(termName, categoryName string) string {
 		if termName == "cancel selection" {
 			return ""
 		}
+		return termName
 	}
 
-	return termName
+	if termExists(termName, categoryName) {
+		return termName
+	}
+
+	fmt.Println("Error: Term not found")
+	return ""
 }
 
 // ------------- getDirectoryName -------------
