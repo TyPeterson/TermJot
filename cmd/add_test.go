@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"bytes"
+	"fmt"
 	"os/exec"
 	"strings"
 	"testing"
@@ -11,7 +12,7 @@ import (
 )
 
 func TestAddCommand(t *testing.T) {
-	binaryPath, _, cleanup := setupTest(t)
+	binaryPath, _, cleanup := SetupTest(t)
 	defer cleanup()
 
 	tests := []struct {
@@ -32,6 +33,12 @@ func TestAddCommand(t *testing.T) {
 			name:           "Conflicting flags",
 			args:           []string{"add", "-t", "testAddTerm", "testAddCategory", "-d"},
 			expectedOutput: "Error: The -t and -d flags cannot be used together",
+			checkDB:        false,
+		},
+		{
+			name:           "Empty term name with -t flag",
+			args:           []string{"add", "-t", "", "testAddCategory"},
+			expectedOutput: "Error: The -t flag requires a non-empty term name",
 			checkDB:        false,
 		},
 	}
@@ -57,6 +64,7 @@ func TestAddCommand(t *testing.T) {
 
 				found := false
 				for _, term := range terms {
+					fmt.Printf("term name: %s, term category: %s\n", term.Name, term.Category)
 					if term.Name == tt.args[2] && term.Category == strings.ToUpper(tt.args[3]) {
 						found = true
 						assert.True(t, term.Active)
@@ -64,6 +72,8 @@ func TestAddCommand(t *testing.T) {
 					}
 				}
 				assert.True(t, found, "Term not found in the database")
+			} else {
+				assert.Error(t, err, "Expected an error but got none")
 			}
 		})
 	}

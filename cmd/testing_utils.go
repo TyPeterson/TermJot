@@ -10,7 +10,7 @@ import (
 	"github.com/TyPeterson/TermJot/internal/core"
 )
 
-func setupTest(t *testing.T) (string, string, func()) {
+func SetupTest(t *testing.T) (string, string, func()) {
 	binaryPath := BuildBinary(t)
 	db, dbPath, err := InitTestDB()
 	if err != nil {
