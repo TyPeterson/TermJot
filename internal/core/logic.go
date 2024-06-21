@@ -319,8 +319,7 @@ func ListAllCategories() {
 
 // ------------- findFileInSubdirectories -------------
 func findFileInSubdirectories(fileName string) (string, error) {
-	// search for the file in the current directory and all subdirectories
-	// return the path to the file if found, otherwise return an error
+
 	var foundPath string
 	err := filepath.Walk(".", func(path string, info os.FileInfo, err error) error {
 		if strings.Contains(path, fileName) {
@@ -337,6 +336,5 @@ func findFileInSubdirectories(fileName string) (string, error) {
 		return "", fmt.Errorf("file not found")
 	}
 
-	// fmt.Println("Found file at: ", foundPath)
 	return foundPath, nil
 }

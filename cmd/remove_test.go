@@ -16,7 +16,6 @@ func TestRemoveCommand(t *testing.T) {
 	binaryPath, _, cleanup := SetupTest(t)
 	defer cleanup()
 
-	// Helper function to add a term for testing removal
 	addTerm := func(termName, category string) {
 		core.HandleAdd(termName, category)
 	}
@@ -105,7 +104,6 @@ func TestRemoveCommand(t *testing.T) {
 				assert.False(t, found, "Term should not be found in the database after removal")
 			}
 
-			// Check for error only if we're expecting the command itself to fail
 			if tt.expectedOutput == "Error: The -t flag requires a non-empty term name" {
 				assert.Error(t, err, "Expected an error but got none")
 				assert.Contains(t, output, tt.expectedOutput)

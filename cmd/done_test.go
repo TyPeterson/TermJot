@@ -16,7 +16,6 @@ func TestDoneCommand(t *testing.T) {
 	binaryPath, _, cleanup := SetupTest(t)
 	defer cleanup()
 
-	// Helper function to add a term for testing
 	addTerm := func(termName, category string) {
 		core.HandleAdd(termName, category)
 	}
@@ -72,7 +71,6 @@ func TestDoneCommand(t *testing.T) {
 
 			cmd := exec.Command(binaryPath, tt.args...)
 
-			// Capture both stdout and stderr
 			var stdoutBuf, stderrBuf bytes.Buffer
 			cmd.Stdout = io.MultiWriter(os.Stdout, &stdoutBuf)
 			cmd.Stderr = io.MultiWriter(os.Stderr, &stderrBuf)
