@@ -61,6 +61,15 @@ func TestDoneCommand(t *testing.T) {
 			expectedOutput: "Error: The -t flag requires a non-empty term name",
 			checkDB:        false,
 		},
+		{
+			name: "Mark term as done with current directory as category",
+			setup: func() {
+				addTerm("existingTerm", core.getDirectoryName())
+			},
+			args:           []string{"done", ".", "-t", "existingTerm"},
+			expectedOutput: "Term marked as done",
+			checkDB:        true,
+		},
 	}
 
 	for _, tt := range tests {

@@ -22,6 +22,10 @@ var removeCmd = &cobra.Command{
 			category = args[0]
 		}
 
+		if category == "." {
+			category = core.getDirectoryName()
+		}
+
 		core.HandleRemove(termName, category)
 		return nil
 	},

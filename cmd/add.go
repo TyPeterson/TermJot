@@ -26,6 +26,10 @@ var addCmd = &cobra.Command{
 			category = args[0]
 		}
 
+		if category == "." {
+			category = core.getDirectoryName()
+		}
+
 		if define {
 			core.HandleDefine(termName, category)
 		} else {

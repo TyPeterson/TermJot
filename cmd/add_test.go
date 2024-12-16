@@ -41,6 +41,13 @@ func TestAddCommand(t *testing.T) {
             expectedOutput: "Error: The -t flag requires a non-empty term name",
             checkDB:        false,
         },
+        {
+            name:           "Add term with current directory as category",
+            args:           []string{"add", "-t", "testAddTerm", "."},
+            input:          "\n",
+            expectedOutput: "Term added successfully",
+            checkDB:        true,
+        },
     }
 
     for _, tt := range tests {
