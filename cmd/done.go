@@ -21,6 +21,10 @@ var doneCmd = &cobra.Command{
 			category = args[0]
 		}
 
+		if category == "." {
+			category = core.getDirectoryName()
+		}
+
 		core.HandleDone(termName, category)
 		return nil
 	},

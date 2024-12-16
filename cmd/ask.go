@@ -15,6 +15,10 @@ var askCmd = &cobra.Command{
 			prompt += arg + " "
 		}
 
+		if category == "." {
+			category = core.getDirectoryName()
+		}
+
 		core.HandleAsk(prompt, category, file, verbose, brief)
 	},
 }

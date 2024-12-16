@@ -61,6 +61,15 @@ func TestRemoveCommand(t *testing.T) {
 			expectedOutput: "Error: The -t flag requires a non-empty term name",
 			checkDB:        false,
 		},
+		{
+			name: "Remove term with current directory as category",
+			setup: func() {
+				addTerm("existingTerm", core.getDirectoryName())
+			},
+			args:           []string{"remove", ".", "-t", "existingTerm"},
+			expectedOutput: "Term removed successfully",
+			checkDB:        true,
+		},
 	}
 
 	for _, tt := range tests {
